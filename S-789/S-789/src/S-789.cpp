@@ -1,4 +1,6 @@
 #include "TM1637.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
 #define CLK 3//pins definitions for TM1637 and can be changed to other ports
 #define DIO 2
 const int ping1 = 12;
