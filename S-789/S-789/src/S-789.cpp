@@ -37,7 +37,7 @@ bool state_relay_mikrocomputer_1=true;
 bool state_relay_mikrocomputer_2=true;
 bool state_relay_heater_cable=true;
 //int8_t DispMSG[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-float tempSensor;
+float tempSensor ;
 
  void receive_temp_no_delay(){
 //#include <OneWire.h>
@@ -73,9 +73,12 @@ float tempSensor;
 
  }
 
+ int temp_minus=0;
+// byte data[2] = {B11111100,B10010000}; // это -55 Место для значения температуры
+ byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B11111100,B10010000};
+
  void receive_temperature(){
      // Определяем температуру от датчика DS18b20
-     byte data[2]; // Место для значения температуры
      ds1820.reset(); // Начинаем взаимодействие со сброса всех предыдущих команд и параметров
      ds1820.write(0xCC); // Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство
      ds1820.write(0x44); // Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
@@ -84,12 +87,18 @@ float tempSensor;
      ds1820.write(0xCC);
      ds1820.write(0xBE); // Просим передать нам значение регистров со значением температуры
      // Получаем и считываем ответ
-     data[0] = ds1820.read(); // Читаем младший байт значения температуры
-     data[1] = ds1820.read(); // А теперь старший
-     // Формируем итоговое значение:
-     //    - сперва "склеиваем" значение,
-     //    - затем умножаем его на коэффициент, соответсвующий разрешающей способности (для 12 бит по умолчанию - это 0,0625)
-     tempSensor =  ((data[1] << 8) | data[0]) * 0.0625;
+     data[8] = ds1820.read(); // Читаем младший байт значения температуры
+     data[7] = ds1820.read(); // старший
+     // Формируем итоговое : "склеиваем" значение,затем умножаем его на коэффициент, соответсвующий разрешающей способности (для 12 бит по умолчанию - это 0,0625)
+     temp_minus = 0;
+     temp_minus = data[7] & B10000000;
+     if (temp_minus != 128){
+     tempSensor =  ((data[7] << 8) | data[8]) * 0.0625;
+     }
+     if (temp_minus == 128){
+         tempSensor =  ((~((data[7] << 8) | data[8]))+1) * 0.0625;
+     }
+
   }
 
  void print_temperature() {
@@ -100,23 +109,23 @@ float tempSensor;
       //tm1637.point(POINT_ON);
       Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
       Digits[1] = (KL1 % 10);
-//    Digits[2] = (KL2 / 10);
-//    Digits[3] = (KL2 % 10);
+//      Digits[2] = (KL2 / 10);
+//      Digits[3] = (KL2 % 10);
       tm1637.display(2,Digits[0]);
       tm1637.display(3,Digits[1]);
    }
 
- void print_lcd(){
+ void print_lcd_setup(){
      lcd.begin(16, 2);                  // Задаем размерность экрана
-     lcd.setCursor(0, 0);              // Устанавливаем курсор в начало 1 строки
-     lcd.print("Hello, world!");       // Выводим текст
-     lcd.setCursor(0, 1);              // Устанавливаем курсор в начало 2 строки
-     lcd.print("zelectro.cc");         // Выводим текст
+//     lcd.setCursor(0, 0);              // Устанавливаем курсор в начало 1 строки
+//     lcd.print("Temperature:");       // Выводим текст
+//     lcd.setCursor(0, 1);              // Устанавливаем курсор в начало 2 строки
+
   }
 
  void setup()
   {
-  print_lcd();
+  print_lcd_setup();
 
 
     tm1637.init();
@@ -141,6 +150,15 @@ float tempSensor;
   receive_temperature();
   print_temperature();
 
+  lcd.setCursor(0, 1);
+  if(temp_minus != 128) lcd.print("+");
+  if(temp_minus == 128) lcd.print("-");
+  lcd.print(tempSensor);
+//    lcd.setCursor(0, 0);
+//    lcd.print(data[0]);
+//    lcd.setCursor(0, 1);
+//    lcd.print(data[1]);
+
   ping1State = digitalRead(ping1);
   if (ping1State_read != ping1State) {
       ping1State_read = ping1State;
@@ -163,12 +181,12 @@ float tempSensor;
   if(ping1State){
 //   tm1637.point(POINT_OFF);
 //  tm1637.point(true);
-  tm1637.display(0, 1);
+//  tm1637.display(0, 1);
   }
   if(!ping1State){
 //   tm1637.point(POINT_ON);
 //  tm1637.point(false);
-  tm1637.display(0, 0);
+//  tm1637.display(0, 0);
   }
   delay(100);
 
