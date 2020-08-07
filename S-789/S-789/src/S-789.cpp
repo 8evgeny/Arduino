@@ -1,23 +1,30 @@
 #include "TM1637.h"
 #include <OneWire.h>
+#include <LiquidCrystal.h>
 //#include <DallasTemperature.h>
 
-#define CLK 3//pins definitions for TM1637 and can be changed to other ports
+#define ONE_WIRE_BUS 11
+OneWire ds1820(ONE_WIRE_BUS);// Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
+// Pass our oneWire reference to Dallas Temperature.
+//DallasTemperature sensors(&ds1820);
+
+#define RS 9 //pins definitions for 1602
+#define E 8
+#define DB4 7
+#define DB5 6
+#define DB6 5
+#define DB7 4
+LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
+
+#define CLK 3 //pins definitions for TM1637
 #define DIO 2
 TM1637 tm1637(CLK,DIO);
 
 const int ping1 = 12;
-const int ping2 = 11;
+//const int ping2 = 11;
 const int relay_mikrocomputer_1 = 10;
-const int relay_mikrocomputer_2 = 9;
-const int relay_heater_cable = 8;
-
-#define ONE_WIRE_BUS 7
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-
-OneWire ds1820(ONE_WIRE_BUS);// Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
-// Pass our oneWire reference to Dallas Temperature.
-//DallasTemperature sensors(&ds1820);
+//const int relay_mikrocomputer_2 = 9;
+//const int relay_heater_cable = 8;
 
 int ping1State = 0;
 int ping1State_read = 0;
@@ -95,12 +102,23 @@ float tempSensor;
       Digits[1] = (KL1 % 10);
 //    Digits[2] = (KL2 / 10);
 //    Digits[3] = (KL2 % 10);
-      tm1637.display(0,Digits[0]);
-      tm1637.display(1,Digits[1]);
+      tm1637.display(2,Digits[0]);
+      tm1637.display(3,Digits[1]);
    }
+
+ void print_lcd(){
+     lcd.begin(16, 2);                  // Задаем размерность экрана
+     lcd.setCursor(0, 0);              // Устанавливаем курсор в начало 1 строки
+     lcd.print("Hello, world!");       // Выводим текст
+     lcd.setCursor(0, 1);              // Устанавливаем курсор в начало 2 строки
+     lcd.print("zelectro.cc");         // Выводим текст
+  }
 
  void setup()
   {
+  print_lcd();
+
+
     tm1637.init();
     tm1637.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
 
@@ -108,10 +126,10 @@ float tempSensor;
 
    pinMode(LED_BUILTIN, OUTPUT);// initialize digital pin LED_BUILTIN as an output.
    pinMode(ping1, INPUT);
-   pinMode(ping2, INPUT);
+//   pinMode(ping2, INPUT);
    pinMode(relay_mikrocomputer_1, OUTPUT);
-   pinMode(relay_mikrocomputer_2, OUTPUT);
-   pinMode(relay_heater_cable, OUTPUT);
+//   pinMode(relay_mikrocomputer_2, OUTPUT);
+//   pinMode(relay_heater_cable, OUTPUT);
    tm1637.init();
    tm1637.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
   }
@@ -130,27 +148,27 @@ float tempSensor;
   }
   if(ping1Count == 50)   {
   digitalWrite(relay_mikrocomputer_1, state_relay_mikrocomputer_1);
-  digitalWrite(relay_mikrocomputer_2, state_relay_mikrocomputer_2);
+//  digitalWrite(relay_mikrocomputer_2, state_relay_mikrocomputer_2);
   state_relay_mikrocomputer_1?state_relay_mikrocomputer_1 = 0:state_relay_mikrocomputer_1 = 1;
-  state_relay_mikrocomputer_2?state_relay_mikrocomputer_2 = 0:state_relay_mikrocomputer_2 = 1;
+//  state_relay_mikrocomputer_2?state_relay_mikrocomputer_2 = 0:state_relay_mikrocomputer_2 = 1;
   ping1Count = 0;
   }
 
-  if(state_relay_mikrocomputer_1) tm1637.display(2, 1);
-  if(!state_relay_mikrocomputer_1) tm1637.display(2, 0);
-  if(state_relay_mikrocomputer_2) tm1637.display(3, 1);
-  if(!state_relay_mikrocomputer_2) tm1637.display(3, 0);
+//  if(state_relay_mikrocomputer_1) tm1637.display(0, 1);
+//  if(!state_relay_mikrocomputer_1) tm1637.display(0, 0);
+//  if(state_relay_mikrocomputer_2) tm1637.display(3, 1);
+//  if(!state_relay_mikrocomputer_2) tm1637.display(3, 0);
 
   digitalWrite(LED_BUILTIN, ping1State);
   if(ping1State){
 //   tm1637.point(POINT_OFF);
 //  tm1637.point(true);
-//  tm1637.display(0, 1);
+  tm1637.display(0, 1);
   }
   if(!ping1State){
 //   tm1637.point(POINT_ON);
 //  tm1637.point(false);
-//  tm1637.display(0, 0);
+  tm1637.display(0, 0);
   }
   delay(100);
 
