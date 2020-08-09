@@ -8,7 +8,7 @@ const int ping1 = 12;
 #define ONE_WIRE_BUS 11
 //const int ping2 = 11;
 const int relay_board_1 = 10;
-//const int relay_mikrocomputer_2 = 9;
+//const int relay_board_2 = 9;
 #define RS 9 //pins definitions for 1602
 #define E 8
 #define DB4 7
@@ -25,16 +25,15 @@ LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
 
 int ping1_A = 0;
 int ping1_B = 0;
-int ping1_count = 0;
-
-int ping2StateA = 0;
-int ping2StateB = 0;
-
-//bool state_relay_mikrocomputer_1 = true;
-//bool state_relay_mikrocomputer_2 = true;
-//bool state_relay_heater_cable = true;
+int ping2_A = 0;
+int ping2_B = 0;
+bool state_relay_board_1 = true;
+//bool state_relay_board_2 = true;
+bool state_relay_heater_cable = true;
 bool very_cold;
 bool very_hot;
+bool COLD;
+bool HOT;
 bool ping_status;
 unsigned long timeping;
 float tempSensor =0;
@@ -44,40 +43,39 @@ byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B000000
 DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device addresses
 
  bool checkHotAlarm(DeviceAddress deviceAddress){
-  bool hot;
+  bool hot = false ;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
-   if(temp_minus != 128){
+   if(HOT){
    lcd.print("Hot!");
    hot = true;
    }
+   if (COLD) hot = false;
   }
-  if (temp_minus == 128) hot = false;
-  if (!sensor.hasAlarm(deviceAddress)){
+  else{
    lcd.setCursor(0, 0);
    lcd.print("          ");
   }
   return hot;
  }
-
  bool checkColdAlarm(DeviceAddress deviceAddress){
-  bool cold;
+  bool cold = false;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
-   if(temp_minus == 128){
+   if(COLD){
     lcd.print("Cold!");
     cold = true;
    }
+  if (HOT) cold = false;
   }
-  if (temp_minus != 128) cold = false;
-  if (!sensor.hasAlarm(deviceAddress)){
+  else{
    lcd.setCursor(0, 0);
    lcd.print("          ");
   }
   return cold;
  }
-
- void receive_temp(){
+ float receive_temp(){
+  float temperat;
   long lastUpdateTime = 0; // Переменная для хранения времени последнего считывания с датчика
   const int TEMP_UPDATE_TIME = 1000; // Определяем периодичность проверок
   ds1820.reset(); // Начинаем взаимодействие со сброса всех предыдущих команд и параметров
@@ -95,19 +93,23 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
    temp_minus = 0;
    temp_minus = data[7] & B10000000;
    if (temp_minus != 128){
-    tempSensor =  ((data[7] << 8) | data[8]) * 0.0625;
+    HOT = true;
+    COLD = false;
+    temperat =  ((data[7] << 8) | data[8]) * 0.0625;
    }
    if (temp_minus == 128){
-    tempSensor =  ((~((data[7] << 8) | data[8]))+1) * 0.0625;
+    HOT = false;
+    COLD = true;
+    temperat =  ((~((data[7] << 8) | data[8]))+1) * 0.0625;
    }
   }
+  return temperat;
  }
-
- void print_temperature_1637() {
+ void print_temperature_1637(float temper) {
       int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
-      int KL1 = tempSensor;
-      int KL2 = (tempSensor - KL1) * 100;
-      if (KL1 > 99)(KL1 = tempSensor - 100);
+      int KL1 = temper;
+      int KL2 = (temper - KL1) * 100;
+      if (KL1 > 99)(KL1 = temper - 100);
 
       Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
       Digits[1] = (KL1 % 10);
@@ -121,12 +123,11 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 
       tm1637.point(ping1_A); //ping
    }
-
- void print_temperature_1602() {
+ void print_temperature_1602(float temper) {
        lcd.setCursor(0, 1);
-       if(temp_minus != 128) lcd.print("+");
-       if(temp_minus == 128) lcd.print("-");
-       lcd.print(tempSensor);
+       if(HOT) lcd.print("+");
+       if(COLD) lcd.print("-");
+       lcd.print(temper);
 
        if (ping_status){
         lcd.setCursor(9, 1);
@@ -137,7 +138,6 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
         lcd.print("NoPing");
        }
    }
-
  bool checkPing(){
   bool pingstate;
   const int MAX_PING_TIME = 3000; // Время ожидания пинга
@@ -156,17 +156,21 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   }
  return pingstate;
  }
-
- void heartCable(bool action){
+ void powerCable(bool action){
   digitalWrite(relay_heater_cable, action);
+  state_relay_heater_cable = action;
  }
-
  void powerBoard1(bool action){
      digitalWrite(relay_board_1, action);
+     state_relay_board_1 = action;
  }
-
+ void powerBoard2(bool action){
+//     digitalWrite(relay_board_2, action);
+//     state_relay_board_2 = action;
+ }
  void setup()
   {
+   delay(3000);
    tm1637.init();
    tm1637.set(BRIGHT_DARKEST);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
    lcd.begin(16, 2);          // Задаем размерность экрана
@@ -180,21 +184,53 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 //   pinMode(ping2, INPUT);
    pinMode(relay_board_1, OUTPUT);
 //   pinMode(relay_mikrocomputer_2, OUTPUT);
-//   pinMode(relay_heater_cable, OUTPUT);
+   pinMode(relay_heater_cable, OUTPUT);
 
   }
 
  void loop()
  {
-  receive_temp();
-  print_temperature_1637();
-  print_temperature_1602();
-  very_hot = checkHotAlarm(insideThermometer);
-  very_cold = checkColdAlarm(insideThermometer);
-  ping_status = checkPing();
+  tempSensor = receive_temp();
+  print_temperature_1637(tempSensor);
+  print_temperature_1602(tempSensor);
 
-  heartCable(1);
-  heartCable(0);
+  very_cold = checkColdAlarm(insideThermometer);
+
+  if(very_cold){//действия при переохлаждении
+
+
+
+  }
+
+  very_hot = checkHotAlarm(insideThermometer);
+
+  if(very_hot){ //действия при перегреве
+
+
+
+
+  }
+
+
+  if(COLD){ //действия при температуре ниже нуля
+
+
+  }
+
+  if(HOT){//действия не требуются
+
+
+  }
+
+  ping_status = checkPing();
+  if(!ping_status){ //действия если нет пинга
+
+
+  }
+
+
+  powerCable(1);
+  powerCable(0);
   powerBoard1(1);
   powerBoard1(0);
 
