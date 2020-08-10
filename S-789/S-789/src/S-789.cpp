@@ -4,12 +4,15 @@
 #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
-#define WAIT_PING 3000  // Время ожидания пинга (ms)
-#define NUMBER_RESTART 3 //Колл попыток перезапуска при отсутствии пинга
-#define TEMP_VERY_COLD -5 //отключаем питание и греем
-#define TEMP_COLD 25 //включаем подогрев
-#define TEMP_HOT 30   //отключаем подогрев
-#define TEMP_VERY_HOT 35   //отключаем питание и ждем
+#define WAIT_PING 3000           // Время ожидания пинга (ms)
+#define NUMBER_RESTART 3         //Колл попыток перезапуска при отсутствии пинга
+#define WAIT_POWER_ON 180000     //ждем прогрузки вычислителя после перезагрузки
+#define WAIT_PING_RESTART 3600000//ждем потом пробуем опять ловить пинг
+#define TEMP_VERY_COLD -40       //отключаем питание и греем
+#define TEMP_COLD -10            //включаем подогрев
+#define TEMP_HOT 5               //отключаем подогрев
+#define TEMP_VERY_HOT 80         //отключаем питание и ждем
+#define WAIT_COLD 3600000        //ждем 1 час
 //**************************
 
 int number_restart = NUMBER_RESTART;
@@ -215,10 +218,10 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   if(very_hot){ //действия при перегреве
   powerCable(0);
   powerBoard1(0);
-//  delay(3600000); //ждем 1 час
   lcd.setCursor(7, 1);
   lcd.print("wait cold");
-  delay(10000); //ждем 10 с. - отладка
+  delay(WAIT_COLD); //ждем
+//  delay(10000); //ждем 10 с. - отладка
   }
 
   if((tempSensor < TEMP_COLD) && !very_cold){ //включаем подогрев и питание платы
@@ -245,7 +248,7 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
       lcd.setCursor(7, 1);
       lcd.print("wait ....");
       lcd.print(restart);
-   delay(3600000);
+   delay(WAIT_PING_RESTART);
 
   restart = 0;
   }
@@ -254,8 +257,8 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
    lcd.print(restart);
 
   powerBoard1(1);
-//  delay(180000);//ждем 3 мин прогрузки платы
-  delay(5000);
+  delay(WAIT_POWER_ON);//ждем прогрузки платы
+//  delay(5000);
   }
 
   if(ping_status && (restart!=0)){ //пинг появился
