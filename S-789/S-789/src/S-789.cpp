@@ -4,12 +4,12 @@
 #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
-#define WAIT_PING 3000           // Время ожидания пинга (ms)
+#define WAIT_PING 300000           // Время ожидания пинга (ms)
 #define NUMBER_RESTART 3         //Колл попыток перезапуска при отсутствии пинга
 #define WAIT_POWER_ON 180000     //ждем прогрузки вычислителя после перезагрузки
 #define WAIT_PING_RESTART 3600000//ждем потом пробуем опять ловить пинг
-#define TEMP_VERY_COLD -40       //отключаем питание и греем
-#define TEMP_COLD -10            //включаем подогрев
+#define TEMP_VERY_COLD -45     //отключаем питание и греем
+#define TEMP_COLD 5            // (это минус 5 )включаем подогрев и питание платы
 #define TEMP_HOT 5               //отключаем подогрев
 #define TEMP_VERY_HOT 80         //отключаем питание и ждем
 #define WAIT_COLD 3600000        //ждем 1 час
@@ -208,10 +208,9 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
    powerBoard1(0); //светодиод на реле не горит
    while(very_cold){
     tempSensor = receive_temp();
+
     very_cold = checkColdAlarm(insideThermometer);
    }
-
-
   }
 
   very_hot = checkHotAlarm(insideThermometer);
@@ -224,17 +223,25 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 //  delay(10000); //ждем 10 с. - отладка
   }
 
-  if((tempSensor < TEMP_COLD) && !very_cold){ //включаем подогрев и питание платы
+  if(COLD && (tempSensor < TEMP_COLD) && !very_cold){ //включаем питание платы
+   powerBoard1(1);
+  }
+
+  if(COLD && (tempSensor > TEMP_COLD) && !very_cold){ //включаем подогрев и питание платы
    powerCable(1);
    powerBoard1(1);
   }
-  if((tempSensor > TEMP_HOT) && !very_hot){//выключаем подогрев и включаем питание платы
+
+  if(HOT && (tempSensor < TEMP_HOT) && !very_hot){//включаем питание платы включаем кабель
+   powerBoard1(1);
+   powerCable(1);
+  }
+
+  if(HOT && (tempSensor > TEMP_HOT) && !very_hot){//выключаем подогрев и включаем питание платы
    powerCable(0);
    powerBoard1(1);
   }
-  if((tempSensor < TEMP_HOT) && (tempSensor > TEMP_COLD)){//включаем питание платы
-   powerBoard1(1);
-  }
+
 
   ping_status = checkPing();
   if(!ping_status){ //действия если нет пинга
