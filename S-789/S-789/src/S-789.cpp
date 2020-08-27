@@ -4,15 +4,14 @@
 #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
-#define WAIT_PING 300000           // Время ожидания пинга (ms)
-#define NUMBER_RESTART 3         //Колл попыток перезапуска при отсутствии пинга
-#define WAIT_POWER_ON 180000     //ждем прогрузки вычислителя после перезагрузки
-#define WAIT_PING_RESTART 3600000//ждем потом пробуем опять ловить пинг
-#define TEMP_VERY_COLD -45     //отключаем питание и греем
-#define TEMP_COLD 5            // (это минус 5 )включаем подогрев и питание платы
-#define TEMP_HOT 5               //отключаем подогрев
-#define TEMP_VERY_HOT 80         //отключаем питание и ждем
-#define WAIT_COLD 3600000        //ждем 1 час
+#define WAIT_PING 10000            // Время ожидания пинга (ms)
+#define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
+#define WAIT_POWER_ON 120000       // Ждем 2 мин прогрузки вычислителя после перезагрузки
+#define WAIT_PING_RESTART 600000   // Ждем 10 мин потом пробуем опять ловить пинг
+#define TEMP_VERY_COLD -45         // Отключаем питание и греем
+#define TEMP_COLD 5                // (это минус 5 )Включаем подогрев и питание платы
+#define TEMP_HOT 5                 // Отключаем подогрев
+#define TEMP_VERY_HOT 80           // Отключаем питание и ждем
 //**************************
 
 int number_restart = NUMBER_RESTART;
@@ -201,14 +200,13 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   tempSensor = receive_temp();
 //  print_temperature_1637(tempSensor);
   print_temperature_1602(tempSensor);
-
   very_cold = checkColdAlarm(insideThermometer);
   if(very_cold){ //действия при переохлаждении - греем и ждем
    powerCable(1); //светодиод на реле не горит - подогрев включен по умолчанию
    powerBoard1(0); //светодиод на реле не горит
    while(very_cold){
     tempSensor = receive_temp();
-
+    print_temperature_1602(tempSensor);
     very_cold = checkColdAlarm(insideThermometer);
    }
   }
@@ -217,10 +215,11 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   if(very_hot){ //действия при перегреве
   powerCable(0);
   powerBoard1(0);
-  lcd.setCursor(7, 1);
-  lcd.print("wait cold");
-  delay(WAIT_COLD); //ждем
-//  delay(10000); //ждем 10 с. - отладка
+   while(very_cold){
+    tempSensor = receive_temp();
+    print_temperature_1602(tempSensor);
+    very_hot = checkHotAlarm(insideThermometer);
+   }
   }
 
   if(COLD && (tempSensor < TEMP_COLD) && !very_cold){ //включаем питание платы
@@ -242,16 +241,17 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
    powerBoard1(1);
   }
 
-
   ping_status = checkPing();
+
   if(!ping_status){ //действия если нет пинга
    lcd.setCursor(7, 1);
    lcd.print("NoPing  ");
-
-  powerBoard1(0);
-  delay(5000);
-  ++restart;
-  if(number_restart == restart-1){
+   tempSensor = receive_temp();
+   print_temperature_1602(tempSensor);
+   powerBoard1(0);
+   delay(5000);
+   ++restart;
+   if(number_restart == restart-1){
       lcd.setCursor(7, 1);
       lcd.print("wait ....");
       lcd.print(restart);
