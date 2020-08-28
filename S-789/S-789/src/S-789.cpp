@@ -4,10 +4,10 @@
  #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
- #define WAIT_PING 10000            // Время ожидания пинга (ms)
+ #define WAIT_PING 180000           // Время ожидания пинга (ms)
  #define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
- #define WAIT_POWER_ON 120000       // Ждем 2 мин прогрузки вычислителя после перезагрузки
- #define WAIT_PING_RESTART 600000   // Ждем 10 мин потом пробуем опять ловить пинг
+ #define WAIT_POWER_ON 180000       // Ждем 3 мин прогрузки вычислителя после перезагрузки
+ #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
  #define TEMP_VERY_COLD -45         // Отключаем питание и греем
  #define TEMP_COLD 5                // (это минус 5 )Включаем подогрев и питание платы
  #define TEMP_HOT 5                 // Отключаем подогрев
@@ -20,6 +20,12 @@
 
 //Распределяем пины данных ARDUINO
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
+
+//pins definitions for TM1637
+
+ #define CLK 15 //A1
+ #define DIO 14 //A0
+
  const int ping2 = 13;
  const int ping1 = 12;
  #define ONE_WIRE_BUS 11
@@ -35,10 +41,6 @@
 
  const int relay_heater_cable = 3;
  const int relay_board_2 = 2;
-
-//pins definitions for TM1637
- #define CLK 1 //TX
- #define DIO 0 //RX
 
 // Создаем объекты для вывода на 4-значный дисплей и LCD
   TM1637 tm1637(CLK,DIO);
@@ -215,7 +217,7 @@
  {
 //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
   tempSensor = receive_temp();
-//  print_temperature_1637(tempSensor);
+  print_temperature_1637(tempSensor);
   print_temperature_1602(tempSensor);
   very_cold = checkColdAlarm(insideThermometer);
   if(very_cold){ //действия при переохлаждении - греем и ждем
@@ -224,6 +226,7 @@
    while(very_cold){
     tempSensor = receive_temp();
     print_temperature_1602(tempSensor);
+    print_temperature_1637(tempSensor);
     very_cold = checkColdAlarm(insideThermometer);
    }
   }
@@ -235,6 +238,7 @@
    while(very_cold){
     tempSensor = receive_temp();
     print_temperature_1602(tempSensor);
+    print_temperature_1637(tempSensor);
     very_hot = checkHotAlarm(insideThermometer);
    }
   }
@@ -265,6 +269,7 @@
    lcd.print("NoPing  ");
    tempSensor = receive_temp();
    print_temperature_1602(tempSensor);
+   print_temperature_1637(tempSensor);
    powerBoard1(0);
    delay(5000);
    ++restart;
