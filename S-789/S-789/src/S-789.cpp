@@ -1,60 +1,72 @@
-#include "TM1637.h"
-#include <OneWire.h>
-#include <LiquidCrystal.h>
-#include <DallasTemperature.h>
+ #include "TM1637.h"
+ #include <OneWire.h>
+ #include <LiquidCrystal.h>
+ #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
-#define WAIT_PING 10000            // Время ожидания пинга (ms)
-#define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
-#define WAIT_POWER_ON 120000       // Ждем 2 мин прогрузки вычислителя после перезагрузки
-#define WAIT_PING_RESTART 600000   // Ждем 10 мин потом пробуем опять ловить пинг
-#define TEMP_VERY_COLD -45         // Отключаем питание и греем
-#define TEMP_COLD 5                // (это минус 5 )Включаем подогрев и питание платы
-#define TEMP_HOT 5                 // Отключаем подогрев
-#define TEMP_VERY_HOT 80           // Отключаем питание и ждем
+ #define WAIT_PING 10000            // Время ожидания пинга (ms)
+ #define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
+ #define WAIT_POWER_ON 120000       // Ждем 2 мин прогрузки вычислителя после перезагрузки
+ #define WAIT_PING_RESTART 600000   // Ждем 10 мин потом пробуем опять ловить пинг
+ #define TEMP_VERY_COLD -45         // Отключаем питание и греем
+ #define TEMP_COLD 5                // (это минус 5 )Включаем подогрев и питание платы
+ #define TEMP_HOT 5                 // Отключаем подогрев
+ #define TEMP_VERY_HOT 80           // Отключаем питание и ждем
 //**************************
 
-int number_restart = NUMBER_RESTART;
-int restart = 0; //номер попытки рестарта (не менять)
-const int wait_ping = WAIT_PING;
-const int ping1 = 12;
-#define ONE_WIRE_BUS 11
-//const int ping2 = 11;
-const int relay_board_1 = 10;
-#define RS 9 //pins definitions for 1602
-#define E 8
-#define DB4 7
-#define DB5 6
-#define DB6 5
-#define DB7 4
-const int relay_heater_cable = 3;
-//#define CLK 3 //pins definitions for TM1637
-//#define DIO 2
-const int relay_board_2 = 2;
+ int number_restart = NUMBER_RESTART;
+ int restart = 0; //номер попытки рестарта (не менять)
+ const int wait_ping = WAIT_PING;
 
-//TM1637 tm1637(CLK,DIO);
-OneWire ds1820(ONE_WIRE_BUS);// Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
-DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
-LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
+//Распределяем пины данных ARDUINO
+// Use analog pins as digital pins. A0 to A5 are D14 to D19.
+ const int ping2 = 13;
+ const int ping1 = 12;
+ #define ONE_WIRE_BUS 11
+ const int relay_board_1 = 10;
 
-int ping1_A = 0;
-int ping1_B = 0;
-int ping2_A = 0;
-int ping2_B = 0;
-bool state_relay_board_1 = true;
-//bool state_relay_board_2 = true;
-bool state_relay_heater_cable = true;
-bool very_cold;
-bool very_hot;
-bool COLD;
-bool HOT;
-bool ping_status;
-unsigned long timeping;
-float tempSensor =0;
-int temp_minus;
-byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B11111100,B10010000}; // это -55 градусов
-//byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000101,B01010000}; // это +85 градусов
-DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device addresses
+//pins definitions for LCD
+ #define RS 9
+ #define E 8
+ #define DB4 7
+ #define DB5 6
+ #define DB6 5
+ #define DB7 4
+
+ const int relay_heater_cable = 3;
+ const int relay_board_2 = 2;
+
+//pins definitions for TM1637
+ #define CLK 1 //TX
+ #define DIO 0 //RX
+
+// Создаем объекты для вывода на 4-значный дисплей и LCD
+  TM1637 tm1637(CLK,DIO);
+  LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
+
+// Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
+ OneWire ds1820(ONE_WIRE_BUS);
+ DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
+
+ int ping1_A = 0;
+ int ping1_B = 0;
+ int ping2_A = 0;
+ int ping2_B = 0;
+ bool state_relay_board_1 = true;
+ bool state_relay_board_2 = true;
+ bool state_relay_heater_cable = true;
+ bool very_cold;
+ bool very_hot;
+ bool COLD;
+ bool HOT;
+ bool ping_status;
+ unsigned long timeping;
+ float tempSensor =0;
+ int temp_minus;
+ byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B11111100,B10010000}; // это -55 градусов
+// byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000101,B01010000}; // это +85 градусов
+
+ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device addresses
 
  bool checkHotAlarm(DeviceAddress deviceAddress){
   bool hot = false ;
@@ -68,6 +80,7 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   }
   return hot;
  }
+
  bool checkColdAlarm(DeviceAddress deviceAddress){
   bool cold = false;
   if (sensor.hasAlarm(deviceAddress)){
@@ -81,6 +94,7 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 
   return cold;
  }
+
  float receive_temp(){
   float temperat = 0;
   long lastUpdateTime = 0; // Переменная для хранения времени последнего считывания с датчика
@@ -112,31 +126,30 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   }
   return temperat;
  }
+
  void print_temperature_1637(float temper) {
-//      int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
-//      int KL1 = temper;
-//      int KL2 = (temper - KL1) * 100;
-//      if (KL1 > 99)(KL1 = temper - 100);
-
-//      Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
-//      Digits[1] = (KL1 % 10);
-//      Digits[2] = (KL2 / 10);
-//      Digits[3] = (KL2 % 10);
-
-//      tm1637.display(0,Digits[0]);
-//      tm1637.display(1,Digits[1]);
-//      tm1637.display(2,Digits[2]);
-//      tm1637.display(3,Digits[3]);
-
-//      tm1637.point(ping1_A); //ping
+   int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
+   int KL1 = temper;
+   int KL2 = (temper - KL1) * 100;
+   if (KL1 > 99)(KL1 = temper - 100);
+   Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
+   Digits[1] = (KL1 % 10);
+   Digits[2] = (KL2 / 10);
+   Digits[3] = (KL2 % 10);
+   tm1637.display(0,Digits[0]);
+   tm1637.display(1,Digits[1]);
+   tm1637.display(2,Digits[2]);
+   tm1637.display(3,Digits[3]);
+   tm1637.point(ping1_A); //ping
    }
+
  void print_temperature_1602(float temper) {
        lcd.setCursor(0, 1);
        if(HOT) lcd.print("+");
        if(COLD) lcd.print("-");
        lcd.print(temper);
-
    }
+
  bool checkPing(){
   bool pingstate;
   ping1_A = digitalRead(ping1);
@@ -154,6 +167,7 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   }
  return pingstate;
  }
+
  void powerCable(bool action){
   digitalWrite(relay_heater_cable, action);
   state_relay_heater_cable = action;
@@ -161,6 +175,7 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
   if(action)lcd.print("ON    ");
   if(!action)lcd.print("OFF  ");
  }
+
  void powerBoard1(bool action){
      digitalWrite(relay_board_1, !action);
      state_relay_board_1 = action;
@@ -168,17 +183,18 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
      if(!action)lcd.print("OFF");
      if(action)lcd.print("ON ");
  }
+
  void powerBoard2(bool action){
 //     digitalWrite(relay_board_2, !action);
 //     state_relay_board_2 = action;
  }
+
  void setup()
   {
-
    delay(3000);
-//   tm1637.init();
-//   tm1637.set(BRIGHT_DARKEST);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
-   lcd.begin(16, 2);          // Задаем размерность экрана
+   tm1637.init();
+   tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
+   lcd.begin(16, 2);           // Задаем размерность экрана
    sensor.begin();
    sensor.getAddress(insideThermometer, 0);
    sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
@@ -186,10 +202,11 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 
    pinMode(LED_BUILTIN, OUTPUT);// initialize digital pin LED_BUILTIN as an output.
    pinMode(ping1, INPUT);
-//   pinMode(ping2, INPUT);
+   pinMode(ping2, INPUT);
    pinMode(relay_board_1, OUTPUT);
    pinMode(relay_board_2, OUTPUT);
    pinMode(relay_heater_cable, OUTPUT);
+
    powerCable(1);
    powerBoard1(0);
   }
@@ -265,7 +282,6 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 
   powerBoard1(1);
   delay(WAIT_POWER_ON);//ждем прогрузки платы
-//  delay(5000);
   }
 
   if(ping_status && (restart!=0)){ //пинг появился
