@@ -1,5 +1,12 @@
-# Определяем переменные окружения сборки
+#$ sudo pacman -S qtcreator
+#Кроме того, нам понадобятся пакеты, касающиеся самой Arduino
+#$ sudo pacman -S arduino arduino-avr-core
+#нам понадобятся ещё компилятор, ассемблер, компоновщик и стандартная библиотека C для AVR, поэтому ставим и их
+#$ sudo pacman -S avr-gcc avr-binutils avr-libc
+#Отладчик и эмулятор , поэтому установим ещё такие пакеты
+#$ sudo pacman -S avr-gdb simavr
 
+# Определяем переменные окружения сборки
 # Корневой каталог исходников Arduino Core
 ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr/
 # Выбираем целевой контроллер (Arduino Uno, Nano, Mini)
