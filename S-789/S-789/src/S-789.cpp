@@ -13,7 +13,7 @@
  #define TEMP_HOT 5                 // Отключаем подогрев
  #define TEMP_VERY_HOT 80           // Отключаем питание и ждем
 //**************************
-
+ const int TEMP_UPDATE_TIME = 1000; // время ожидания ds1820
  int number_restart = NUMBER_RESTART;
  int restart = 0; //номер попытки рестарта (не менять)
  const int wait_ping = WAIT_PING;
@@ -100,7 +100,6 @@
  float receive_temp(){
   float temperat = 0;
   long lastUpdateTime = 0; // Переменная для хранения времени последнего считывания с датчика
-  const int TEMP_UPDATE_TIME = 1000; // Определяем периодичность проверок
   ds1820.reset(); // Начинаем взаимодействие со сброса всех предыдущих команд и параметров
   ds1820.write(0xCC); // Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство
   ds1820.write(0x44); // Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
@@ -215,6 +214,7 @@
 
  void loop()
  {
+
 //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
   tempSensor = receive_temp();
   print_temperature_1637(tempSensor);
@@ -262,10 +262,9 @@
    powerBoard1(1);
   }
 
-  ping_status = checkPing();
-
 //Откдючена проверка пинга до окончания сертификации
 
+//  ping_status = checkPing();
 //  if(!ping_status){ //действия если нет пинга
 //   lcd.setCursor(7, 1);
 //   lcd.print("NoPing  ");
@@ -302,7 +301,7 @@
 //  lcd.print("PingOK  ");
 //  }
 
- digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
+// digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
 
 }
 
