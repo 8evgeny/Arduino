@@ -264,41 +264,43 @@
 
   ping_status = checkPing();
 
-  if(!ping_status){ //действия если нет пинга
-   lcd.setCursor(7, 1);
-   lcd.print("NoPing  ");
-   tempSensor = receive_temp();
-   print_temperature_1602(tempSensor);
-   print_temperature_1637(tempSensor);
-   powerBoard1(0);
-   delay(5000);
-   ++restart;
-   if(number_restart == restart-1){
-      lcd.setCursor(7, 1);
-      lcd.print("wait ....");
-      lcd.print(restart);
-   delay(WAIT_PING_RESTART);
+//Откдючена проверка пинга до окончания сертификации
 
-  restart = 0;
-  }
-   lcd.setCursor(7, 1);
-   lcd.print("Restart");
-   lcd.print(restart);
+//  if(!ping_status){ //действия если нет пинга
+//   lcd.setCursor(7, 1);
+//   lcd.print("NoPing  ");
+//   tempSensor = receive_temp();
+//   print_temperature_1602(tempSensor);
+//   print_temperature_1637(tempSensor);
+//   powerBoard1(0);
+//   delay(5000);
+//   ++restart;
+//   if(number_restart == restart-1){
+//      lcd.setCursor(7, 1);
+//      lcd.print("wait ....");
+//      lcd.print(restart);
+//   delay(WAIT_PING_RESTART);
 
-  powerBoard1(1);
-  delay(WAIT_POWER_ON);//ждем прогрузки платы
-  }
+//  restart = 0;
+//  }
+//   lcd.setCursor(7, 1);
+//   lcd.print("Restart");
+//   lcd.print(restart);
 
-  if(ping_status && (restart!=0)){ //пинг появился
-  restart = 0;
-  lcd.setCursor(7, 1);
-  lcd.print("        ");
-  }
+//  powerBoard1(1);
+//  delay(WAIT_POWER_ON);//ждем прогрузки платы
+//  }
 
-  if(ping_status ){ //пинг ok
-  lcd.setCursor(7, 1);
-  lcd.print("PingOK  ");
-  }
+//  if(ping_status && (restart!=0)){ //пинг появился
+//  restart = 0;
+//  lcd.setCursor(7, 1);
+//  lcd.print("        ");
+//  }
+
+//  if(ping_status ){ //пинг ok
+//  lcd.setCursor(7, 1);
+//  lcd.print("PingOK  ");
+//  }
 
  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
 
