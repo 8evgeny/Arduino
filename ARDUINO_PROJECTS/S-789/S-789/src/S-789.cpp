@@ -1,6 +1,10 @@
  #include "TM1637.h"
  #include <OneWire.h>
  #include <LiquidCrystal.h>
+
+ #include <Wire.h>
+// #include <LiquidCrystal_I2C.h>
+ #include <LiquidCrystal_PCF8574.h>
  #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
@@ -13,7 +17,7 @@
  #define TEMP_HOT 5                 // Отключаем подогрев
  #define TEMP_VERY_HOT 80           // Отключаем питание и ждем
 //**************************
-
+ const int TEMP_UPDATE_TIME = 1000; // время ожидания ds1820
  int number_restart = NUMBER_RESTART;
  int restart = 0; //номер попытки рестарта (не менять)
  const int wait_ping = WAIT_PING;
@@ -22,9 +26,10 @@
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
 
 //pins definitions for TM1637
-
  #define CLK 15 //A1
  #define DIO 14 //A0
+
+//pins definitions for TM1602_I2C   Arduino Nano: A4-SDA A5-SCL
 
  const int ping2 = 13;
  const int ping1 = 12;
@@ -50,6 +55,9 @@
  OneWire ds1820(ONE_WIRE_BUS);
  DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
 
+// LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
+ LiquidCrystal_PCF8574 lcd1(0x27);
+
  int ping1_A = 0;
  int ping1_B = 0;
  int ping2_A = 0;
@@ -74,8 +82,10 @@
   bool hot = false ;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
+   lcd1.setCursor(0, 0);
    if(HOT){
    lcd.print("Hot!");
+   lcd1.print("Hot!");
    hot = true;
    }
    if (COLD) hot = false;
@@ -87,8 +97,10 @@
   bool cold = false;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
+   lcd1.setCursor(0, 0);
    if(COLD){
     lcd.print("Cold!");
+    lcd1.print("Cold!");
     cold = true;
    }
   if (HOT) cold = false;
@@ -100,7 +112,6 @@
  float receive_temp(){
   float temperat = 0;
   long lastUpdateTime = 0; // Переменная для хранения времени последнего считывания с датчика
-  const int TEMP_UPDATE_TIME = 1000; // Определяем периодичность проверок
   ds1820.reset(); // Начинаем взаимодействие со сброса всех предыдущих команд и параметров
   ds1820.write(0xCC); // Даем датчику DS18b20 команду пропустить поиск по адресу. В нашем случае только одно устрйоство
   ds1820.write(0x44); // Даем датчику DS18b20 команду измерить температуру. Само значение температуры мы еще не получаем - датчик его положит во внутреннюю память
@@ -147,9 +158,17 @@
 
  void print_temperature_1602(float temper) {
        lcd.setCursor(0, 1);
-       if(HOT) lcd.print("+");
-       if(COLD) lcd.print("-");
+       lcd1.setCursor(0, 1);
+       if(HOT) {
+           lcd.print("+");
+           lcd1.print("+");
+       }
+       if(COLD) {
+           lcd.print("-");
+           lcd1.print("-");
+       }
        lcd.print(temper);
+       lcd1.print(temper);
    }
 
  bool checkPing(){
@@ -161,7 +180,9 @@
   while(ping1_A == ping1_B) {
    ping1_A = digitalRead(ping1);
    lcd.setCursor(6, 0);
+   lcd1.setCursor(6, 0);
    lcd.print(millis()/1000);
+   lcd1.print(millis()/1000);
    if (millis() - timeping > wait_ping) {
     pingstate = false;
     break;
@@ -174,16 +195,30 @@
   digitalWrite(relay_heater_cable, action);
   state_relay_heater_cable = action;
   lcd.setCursor(0, 0);
-  if(action)lcd.print("ON    ");
-  if(!action)lcd.print("OFF  ");
+  lcd1.setCursor(0, 0);
+  if(action){
+      lcd.print("ON    ");
+      lcd1.print("ON    ");
+  }
+  if(!action){
+      lcd.print("OFF  ");
+      lcd1.print("OFF  ");
+  }
  }
 
  void powerBoard1(bool action){
      digitalWrite(relay_board_1, !action);
      state_relay_board_1 = action;
      lcd.setCursor(13, 0);
-     if(!action)lcd.print("OFF");
-     if(action)lcd.print("ON ");
+     lcd1.setCursor(13, 0);
+     if(!action){
+         lcd.print("OFF");
+         lcd1.print("OFF");
+     }
+     if(action){
+         lcd.print("ON ");
+         lcd1.print("ON ");
+     }
  }
 
  void powerBoard2(bool action){
@@ -194,6 +229,11 @@
  void setup()
   {
    delay(3000);
+   lcd1.begin(16,2);
+   lcd1.setBacklight(255);
+   lcd1.home();
+   lcd1.clear();
+
    tm1637.init();
    tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
    lcd.begin(16, 2);           // Задаем размерность экрана
@@ -215,6 +255,7 @@
 
  void loop()
  {
+
 //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
   tempSensor = receive_temp();
   print_temperature_1637(tempSensor);
@@ -262,45 +303,46 @@
    powerBoard1(1);
   }
 
-  ping_status = checkPing();
+//Откдючена проверка пинга до окончания сертификации
 
-  if(!ping_status){ //действия если нет пинга
-   lcd.setCursor(7, 1);
-   lcd.print("NoPing  ");
-   tempSensor = receive_temp();
-   print_temperature_1602(tempSensor);
-   print_temperature_1637(tempSensor);
-   powerBoard1(0);
-   delay(5000);
-   ++restart;
-   if(number_restart == restart-1){
-      lcd.setCursor(7, 1);
-      lcd.print("wait ....");
-      lcd.print(restart);
-   delay(WAIT_PING_RESTART);
+//  ping_status = checkPing();
+//  if(!ping_status){ //действия если нет пинга
+//   lcd.setCursor(7, 1);
+//   lcd.print("NoPing  ");
+//   tempSensor = receive_temp();
+//   print_temperature_1602(tempSensor);
+//   print_temperature_1637(tempSensor);
+//   powerBoard1(0);
+//   delay(5000);
+//   ++restart;
+//   if(number_restart == restart-1){
+//      lcd.setCursor(7, 1);
+//      lcd.print("wait ....");
+//      lcd.print(restart);
+//   delay(WAIT_PING_RESTART);
 
-  restart = 0;
-  }
-   lcd.setCursor(7, 1);
-   lcd.print("Restart");
-   lcd.print(restart);
+//  restart = 0;
+//  }
+//   lcd.setCursor(7, 1);
+//   lcd.print("Restart");
+//   lcd.print(restart);
 
-  powerBoard1(1);
-  delay(WAIT_POWER_ON);//ждем прогрузки платы
-  }
+//  powerBoard1(1);
+//  delay(WAIT_POWER_ON);//ждем прогрузки платы
+//  }
 
-  if(ping_status && (restart!=0)){ //пинг появился
-  restart = 0;
-  lcd.setCursor(7, 1);
-  lcd.print("        ");
-  }
+//  if(ping_status && (restart!=0)){ //пинг появился
+//  restart = 0;
+//  lcd.setCursor(7, 1);
+//  lcd.print("        ");
+//  }
 
-  if(ping_status ){ //пинг ok
-  lcd.setCursor(7, 1);
-  lcd.print("PingOK  ");
-  }
+//  if(ping_status ){ //пинг ok
+//  lcd.setCursor(7, 1);
+//  lcd.print("PingOK  ");
+//  }
 
- digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
+// digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
 
 }
 
