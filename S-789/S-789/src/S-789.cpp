@@ -1,8 +1,10 @@
  #include "TM1637.h"
  #include <OneWire.h>
  #include <LiquidCrystal.h>
+
  #include <Wire.h>
- #include <LiquidCrystal_I2C.h>
+// #include <LiquidCrystal_I2C.h>
+ #include <LiquidCrystal_PCF8574.h>
  #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
@@ -28,8 +30,6 @@
  #define DIO 14 //A0
 
 //pins definitions for TM1602_I2C   Arduino Nano: A4-SDA A5-SCL
-// #define CLK1 16 //A2
-// #define DIO1 17 //A3
 
  const int ping2 = 13;
  const int ping1 = 12;
@@ -55,8 +55,8 @@
  OneWire ds1820(ONE_WIRE_BUS);
  DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
 
- LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
-// LiquidCrystal_PCF8574 lcd1(0x27);
+// LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
+ LiquidCrystal_PCF8574 lcd1(0x27);
 
  int ping1_A = 0;
  int ping1_B = 0;
@@ -82,8 +82,10 @@
   bool hot = false ;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
+   lcd1.setCursor(0, 0);
    if(HOT){
    lcd.print("Hot!");
+   lcd1.print("Hot!");
    hot = true;
    }
    if (COLD) hot = false;
@@ -95,8 +97,10 @@
   bool cold = false;
   if (sensor.hasAlarm(deviceAddress)){
    lcd.setCursor(0, 0);
+   lcd1.setCursor(0, 0);
    if(COLD){
     lcd.print("Cold!");
+    lcd1.print("Cold!");
     cold = true;
    }
   if (HOT) cold = false;
@@ -154,9 +158,17 @@
 
  void print_temperature_1602(float temper) {
        lcd.setCursor(0, 1);
-       if(HOT) lcd.print("+");
-       if(COLD) lcd.print("-");
+       lcd1.setCursor(0, 1);
+       if(HOT) {
+           lcd.print("+");
+           lcd1.print("+");
+       }
+       if(COLD) {
+           lcd.print("-");
+           lcd1.print("-");
+       }
        lcd.print(temper);
+       lcd1.print(temper);
    }
 
  bool checkPing(){
@@ -168,7 +180,9 @@
   while(ping1_A == ping1_B) {
    ping1_A = digitalRead(ping1);
    lcd.setCursor(6, 0);
+   lcd1.setCursor(6, 0);
    lcd.print(millis()/1000);
+   lcd1.print(millis()/1000);
    if (millis() - timeping > wait_ping) {
     pingstate = false;
     break;
@@ -181,16 +195,30 @@
   digitalWrite(relay_heater_cable, action);
   state_relay_heater_cable = action;
   lcd.setCursor(0, 0);
-  if(action)lcd.print("ON    ");
-  if(!action)lcd.print("OFF  ");
+  lcd1.setCursor(0, 0);
+  if(action){
+      lcd.print("ON    ");
+      lcd1.print("ON    ");
+  }
+  if(!action){
+      lcd.print("OFF  ");
+      lcd1.print("OFF  ");
+  }
  }
 
  void powerBoard1(bool action){
      digitalWrite(relay_board_1, !action);
      state_relay_board_1 = action;
      lcd.setCursor(13, 0);
-     if(!action)lcd.print("OFF");
-     if(action)lcd.print("ON ");
+     lcd1.setCursor(13, 0);
+     if(!action){
+         lcd.print("OFF");
+         lcd1.print("OFF");
+     }
+     if(action){
+         lcd.print("ON ");
+         lcd1.print("ON ");
+     }
  }
 
  void powerBoard2(bool action){
@@ -201,13 +229,10 @@
  void setup()
   {
    delay(3000);
-
-//   lcd1.init();                      // Инициализация дисплея
-//   lcd1.backlight();                 // Подключение подсветки
-//   lcd1.setCursor(0,0);              // Установка курсора в начало первой строки
-//   lcd1.print("Hello");              // Набор текста на первой строке
-//   lcd1.setCursor(0,1);              // Установка курсора в начало второй строки
-//   lcd1.print("ArduinoMaster");      // Набор текста на второй строке
+   lcd1.begin(16,2);
+   lcd1.setBacklight(255);
+   lcd1.home();
+   lcd1.clear();
 
    tm1637.init();
    tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
