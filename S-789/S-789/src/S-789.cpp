@@ -1,6 +1,8 @@
  #include "TM1637.h"
  #include <OneWire.h>
  #include <LiquidCrystal.h>
+ #include <Wire.h>
+ #include <LiquidCrystal_I2C.h>
  #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
@@ -22,9 +24,12 @@
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
 
 //pins definitions for TM1637
-
  #define CLK 15 //A1
  #define DIO 14 //A0
+
+//pins definitions for TM1602_I2C   Arduino Nano: A4-SDA A5-SCL
+// #define CLK1 16 //A2
+// #define DIO1 17 //A3
 
  const int ping2 = 13;
  const int ping1 = 12;
@@ -49,6 +54,9 @@
 // Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
  OneWire ds1820(ONE_WIRE_BUS);
  DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
+
+ LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
+// LiquidCrystal_PCF8574 lcd1(0x27);
 
  int ping1_A = 0;
  int ping1_B = 0;
@@ -193,6 +201,14 @@
  void setup()
   {
    delay(3000);
+
+//   lcd1.init();                      // Инициализация дисплея
+//   lcd1.backlight();                 // Подключение подсветки
+//   lcd1.setCursor(0,0);              // Установка курсора в начало первой строки
+//   lcd1.print("Hello");              // Набор текста на первой строке
+//   lcd1.setCursor(0,1);              // Установка курсора в начало второй строки
+//   lcd1.print("ArduinoMaster");      // Набор текста на второй строке
+
    tm1637.init();
    tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
    lcd.begin(16, 2);           // Задаем размерность экрана
