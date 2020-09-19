@@ -1,7 +1,7 @@
 # Определяем переменные окружения сборки
 
 # Корневой каталог исходников Arduino Core
-ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr/
+ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr
 # Выбираем целевой контроллер (Arduino Uno, Nano, Mini)
 ARDUINO_MCU=atmega328p
 # Частота тактирования контроллера
