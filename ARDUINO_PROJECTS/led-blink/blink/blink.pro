@@ -48,8 +48,8 @@ QMAKE_POST_LINK += /usr/bin/avr-objcopy -O ihex -j .text -j .data -S ${TARGET} $
 LIBS += -L../lib -lcore
 
 #Заголовки проекта
-INCLUDEPATH += ./include
-HEADERS += $$files(./include/*.h)
+INCLUDEPATH += ../include
+HEADERS += $$files(../include/*.h)
 
 # Исходники проекта
-SOURCES += $$files(./src/*.cpp)
+SOURCES += $$files(../src/*.cpp)
