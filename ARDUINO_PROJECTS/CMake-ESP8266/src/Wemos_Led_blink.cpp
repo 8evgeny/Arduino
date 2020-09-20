@@ -80,7 +80,7 @@ void setup() {
     Serial.print("IP address: ");
 //    Serial.println(WiFi.localIP());
 }
-
+ //  //usr/avr/include/stdint.h
 void loop() {
     ArduinoOTA.handle();
 
