@@ -8,7 +8,10 @@
  #include <DallasTemperature.h>
 
 //****** ПАРАМЕТРЫ *********
- #define WAIT_PING 180000           // Время ожидания пинга (ms)
+// #define WAIT_PING 60000          // Время ожидания пинга (ms)
+
+ #define WAIT_PING 6000000000       // Для тестов (ms)
+
  #define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
  #define WAIT_POWER_ON 180000       // Ждем 3 мин прогрузки вычислителя после перезагрузки
  #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
