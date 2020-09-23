@@ -30,7 +30,8 @@
  #define CLK 15 //A1
  #define DIO 14 //A0
 
-//pins definitions for TM1602_I2C   Arduino Nano: A4-SDA A5-SCL
+//pins definitions for TM1602_I2C   Arduino Nano: A4-SDA A5-SCL (
+//это зашито в Nano на уровне железа
 
  const int ping2 = 13;
  const int ping1 = 12;
