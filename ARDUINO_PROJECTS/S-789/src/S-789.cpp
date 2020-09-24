@@ -312,12 +312,12 @@ if( HOT && tempSensor <= TEMP_VERY_HOT) very_hot = false;
   powerBoard1(0);
  }
 
- if(COLD && (tempSensor < TEMP_COLD) && !very_cold){
+ if(COLD && tempSensor < TEMP_COLD) {
   powerBoard1(1);
   powerCable(1);
  }
 
- if(HOT && (tempSensor < TEMP_HOT) && !very_hot){
+ if(HOT && tempSensor < TEMP_HOT) {
   powerCable(1);
   powerBoard1(1);
  }
