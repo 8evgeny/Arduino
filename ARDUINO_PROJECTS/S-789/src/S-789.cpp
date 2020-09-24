@@ -16,11 +16,11 @@
 #define WAIT_POWER_ON 180000       // Ждем 3 мин прогрузки вычислителя после перезагрузки
 #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
-#define TEMP_VERY_COLD 30         // Отключаем питание и греем
-#define TEMP_COLD 15               // (это минус 15 )Включаем подогрев и питание платы
-
-#define TEMP_HOT 2                 // Отключаем подогрев
-#define TEMP_VERY_HOT 80           // Отключаем питание и ждем
+//#define TEMP_VERY_COLD 30
+#define TEMP_COLD 10               // Температура отключения подогрева (минус)
+#define TEMP_START 20              // Температура старта (минус)
+//#define TEMP_HOT 2
+#define TEMP_VERY_HOT 80
 //**************************
 const int TEMP_UPDATE_TIME = 1000; // время ожидания ds1820
 int number_restart = NUMBER_RESTART;
@@ -248,8 +248,8 @@ void setup()
   lcd.begin(16, 2);           // Задаем размерность экрана
   sensor.begin();
   sensor.getAddress(insideThermometer, 0);
-  sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
-//   sensor.setLowAlarmTemp(insideThermometer, TEMP_VERY_COLD*(-1));
+//  sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
+//  sensor.setLowAlarmTemp(insideThermometer, TEMP_VERY_COLD*(-1));
 
   pinMode(LED_BUILTIN, OUTPUT);// initialize digital pin LED_BUILTIN as an output.
   pinMode(ping1, INPUT);
@@ -272,8 +272,8 @@ void loop()
  print_temperature_1602(tempSensor);
 
 
-if( COLD && tempSensor > TEMP_VERY_COLD) very_cold = true;
-if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
+//if( COLD && tempSensor > TEMP_VERY_COLD) very_cold = true;
+//if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
 
 //  very_cold = checkColdAlarm(insideThermometer);
 //  if(very_cold){ //действия при переохлаждении - греем и ждем
@@ -287,8 +287,8 @@ if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
 //   }
 //  }
 
-if( HOT && tempSensor > TEMP_VERY_HOT) very_hot = true;
-if( HOT && tempSensor <= TEMP_VERY_HOT) very_hot = false;
+//if( HOT && tempSensor > TEMP_VERY_HOT) very_hot = true;
+//if( HOT && tempSensor <= TEMP_VERY_HOT) very_hot = false;
 
 //  very_hot = checkHotAlarm(insideThermometer);
 //  if(very_hot){ //действия при перегреве
@@ -302,35 +302,60 @@ if( HOT && tempSensor <= TEMP_VERY_HOT) very_hot = false;
 //   }
 //  }
 
- if(very_cold ){
-  powerCable(1);
-  powerBoard1(0);
- }
+if(COLD && tempSensor > TEMP_COLD) {
+    powerCable(1);
+}
 
- if(COLD && (tempSensor > TEMP_COLD) && !very_cold){
-  powerCable(1);
-  powerBoard1(0);
- }
+if(COLD && tempSensor < (TEMP_COLD-1)) {
+    powerCable(0);
+}
 
- if(COLD && tempSensor < TEMP_COLD) {
-  powerBoard1(1);
-  powerCable(1);
- }
+if(COLD && tempSensor > TEMP_START+1) {
+    powerBoard1(0);
+}
 
- if(HOT && tempSensor < TEMP_HOT) {
-  powerCable(1);
-  powerBoard1(1);
- }
+if(COLD && tempSensor < TEMP_START) {
+    powerBoard1(1);
+}
 
- if(HOT && (tempSensor > TEMP_HOT) && !very_hot){//выключаем подогрев и включаем питание платы
-  powerCable(0);
-  powerBoard1(1);
- }
+if(HOT && tempSensor < TEMP_VERY_HOT-1) {
+    powerBoard1(1);
+}
 
- if(very_hot ){
-  powerCable(0);
-  powerBoard1(0);
- }
+if(HOT && tempSensor > TEMP_VERY_HOT) {
+    powerBoard1(0);
+}
+
+
+// if(very_cold ){
+//  powerCable(1);
+//  powerBoard1(0);
+// }
+
+// if(COLD && (tempSensor > TEMP_COLD) && !very_cold){
+//  powerCable(1);
+//  powerBoard1(0);
+// }
+
+// if(COLD && tempSensor < TEMP_COLD) {
+//  powerBoard1(1);
+//  powerCable(1);
+// }
+
+// if(HOT && tempSensor < TEMP_HOT) {
+//  powerCable(1);
+//  powerBoard1(1);
+// }
+
+// if(HOT && (tempSensor > TEMP_HOT) && !very_hot){//выключаем подогрев и включаем питание платы
+//  powerCable(0);
+//  powerBoard1(1);
+// }
+
+// if(very_hot ){
+//  powerCable(0);
+//  powerBoard1(0);
+// }
 
 
 // if (power_board1_on){
