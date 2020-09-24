@@ -16,8 +16,9 @@
  #define WAIT_POWER_ON 180000       // Ждем 3 мин прогрузки вычислителя после перезагрузки
  #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
- #define TEMP_VERY_COLD -30         // Отключаем питание и греем
- #define TEMP_COLD 15               // (это минус 15 )Включаем подогрев и питание платы
+ #define TEMP_VERY_COLD 10         // Отключаем питание и греем
+ #define TEMP_COLD 5               // (это минус 5 )Включаем подогрев и питание платы
+
  #define TEMP_HOT 2                 // Отключаем подогрев
  #define TEMP_VERY_HOT 80           // Отключаем питание и ждем
 //**************************
@@ -248,7 +249,7 @@
    sensor.begin();
    sensor.getAddress(insideThermometer, 0);
    sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
-   sensor.setLowAlarmTemp(insideThermometer, TEMP_VERY_COLD);
+//   sensor.setLowAlarmTemp(insideThermometer, TEMP_VERY_COLD*(-1));
 
    pinMode(LED_BUILTIN, OUTPUT);// initialize digital pin LED_BUILTIN as an output.
    pinMode(ping1, INPUT);
@@ -269,28 +270,39 @@
   tempSensor = receive_temp();
   print_temperature_1637(tempSensor);
   print_temperature_1602(tempSensor);
-  very_cold = checkColdAlarm(insideThermometer);
-  if(very_cold){ //действия при переохлаждении - греем и ждем
-   powerCable(1); //светодиод на реле не горит - подогрев включен по умолчанию
-   powerBoard1(0); //светодиод на реле не горит
-   while(very_cold){
-    tempSensor = receive_temp();
-    print_temperature_1602(tempSensor);
-    print_temperature_1637(tempSensor);
-    very_cold = checkColdAlarm(insideThermometer);
-   }
-  }
+
+
+if( COLD && tempSensor > TEMP_VERY_COLD) very_cold = true;
+if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
+
+//  very_cold = checkColdAlarm(insideThermometer);
+//  if(very_cold){ //действия при переохлаждении - греем и ждем
+//   powerCable(1); //светодиод на реле не горит - подогрев включен по умолчанию
+//   powerBoard1(0); //светодиод на реле не горит
+//   while(very_cold){
+//    tempSensor = receive_temp();
+//    print_temperature_1602(tempSensor);
+//    print_temperature_1637(tempSensor);
+//    very_cold = checkColdAlarm(insideThermometer);
+//   }
+//  }
 
   very_hot = checkHotAlarm(insideThermometer);
   if(very_hot){ //действия при перегреве
   powerCable(0);
   powerBoard1(0);
-   while(very_cold){
+   while(very_hot){
     tempSensor = receive_temp();
     print_temperature_1602(tempSensor);
     print_temperature_1637(tempSensor);
     very_hot = checkHotAlarm(insideThermometer);
    }
+  }
+
+
+  if(very_cold ){ //включаем подогрев и выключаем питание платы
+   powerCable(1);
+   powerBoard1(0);
   }
 
   if(COLD && (tempSensor < TEMP_COLD) && !very_cold){ //включаем питание платы
