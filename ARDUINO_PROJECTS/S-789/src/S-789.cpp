@@ -312,60 +312,60 @@
    powerBoard1(1);
   }
 
-  if (power_board1_on){
+// if (power_board1_on){
 
-  ping_status = checkPing();
+//  ping_status = checkPing();
 
-  if(ping_status ){ //пинг ok
-  lcd.setCursor(7, 1);
-  lcd.print("PingOK  ");
-  lcd1.setCursor(7, 1);
-  lcd1.print("PingOK  ");
-  }
+//  if(ping_status ){ //пинг ok
+//  lcd.setCursor(7, 1);
+//  lcd.print("PingOK  ");
+//  lcd1.setCursor(7, 1);
+//  lcd1.print("PingOK  ");
+//  }
 
-  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
+//  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
 
-  if(!ping_status){ //действия если нет пинга
-   lcd.setCursor(7, 1);
-   lcd.print("NoPing  ");
-   lcd1.setCursor(7, 1);
-   lcd1.print("NoPing  ");
-   tempSensor = receive_temp();
-   print_temperature_1602(tempSensor);
-   print_temperature_1637(tempSensor);
-   powerBoard1(0);
-   delay(5000);
-   ++restart;
-   if(number_restart == restart-1){
-      lcd.setCursor(7, 1);
-      lcd.print("wait ....");
-      lcd.print(restart);
-      lcd1.setCursor(7, 1);
-      lcd1.print("wait ....");
-      lcd1.print(restart);
-   delay(WAIT_PING_RESTART);
+//  if(!ping_status){ //действия если нет пинга
+//   lcd.setCursor(7, 1);
+//   lcd.print("NoPing  ");
+//   lcd1.setCursor(7, 1);
+//   lcd1.print("NoPing  ");
+//   tempSensor = receive_temp();
+//   print_temperature_1602(tempSensor);
+//   print_temperature_1637(tempSensor);
+//   powerBoard1(0);
+//   delay(5000);
+//   ++restart;
+//   if(number_restart == restart-1){
+//      lcd.setCursor(7, 1);
+//      lcd.print("wait ....");
+//      lcd.print(restart);
+//      lcd1.setCursor(7, 1);
+//      lcd1.print("wait ....");
+//      lcd1.print(restart);
+//   delay(WAIT_PING_RESTART);
 
-  restart = 0;
-  }
-   lcd.setCursor(7, 1);
-   lcd.print("Restart");
-   lcd.print(restart);
-   lcd1.setCursor(7, 1);
-   lcd1.print("Restart");
-   lcd1.print(restart);
-  powerBoard1(1);
-  delay(WAIT_POWER_ON);//ждем прогрузки платы
-  }
+//  restart = 0;
+//  }
+//   lcd.setCursor(7, 1);
+//   lcd.print("Restart");
+//   lcd.print(restart);
+//   lcd1.setCursor(7, 1);
+//   lcd1.print("Restart");
+//   lcd1.print(restart);
+//  powerBoard1(1);
+//  delay(WAIT_POWER_ON);//ждем прогрузки платы
+//  }
 
-  if(ping_status && (restart!=0)){ //пинг появился
-  restart = 0;
-  lcd.setCursor(7, 1);
-  lcd.print("        ");
-  lcd1.setCursor(7, 1);
-  lcd1.print("        ");
-  }
+//  if(ping_status && (restart!=0)){ //пинг появился
+//  restart = 0;
+//  lcd.setCursor(7, 1);
+//  lcd.print("        ");
+//  lcd1.setCursor(7, 1);
+//  lcd1.print("        ");
+//  }
 
-}
+// }
 
 }
 
