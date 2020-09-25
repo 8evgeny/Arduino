@@ -418,6 +418,12 @@ if(HOT && tempSensor > TEMP_VERY_HOT) {
 
 // }
 
+lcd.setCursor(6, 0);
+lcd1.setCursor(6, 0);
+lcd.print(millis()/1000);
+lcd1.print(millis()/1000);
+
+
 }
 
 void receive_temp_dallas(DeviceAddress deviceAddress){
