@@ -17,8 +17,9 @@
 #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
 //#define TEMP_VERY_COLD 30
-#define TEMP_COLD 10               // Температура отключения подогрева (минус)
-#define TEMP_START 20              // Температура старта (минус)
+#define TEMP_COLD 10               // Температура включения подогрева (минус)
+#define DELTA 3                    // Дельта
+#define TEMP_START 15              // Температура старта (минус)
 //#define TEMP_HOT 2
 #define TEMP_VERY_HOT 80
 //**************************
@@ -306,7 +307,7 @@ if(COLD && tempSensor > TEMP_COLD) {
     powerCable(1);
 }
 
-if(COLD && tempSensor < (TEMP_COLD-1)) {
+if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
     powerCable(0);
 }
 
@@ -314,7 +315,7 @@ if(HOT) {
     powerCable(0);
 }
 
-if(COLD && tempSensor > TEMP_START+1) {
+if(COLD && tempSensor > TEMP_START + DELTA) {
     powerBoard1(0);
 }
 
@@ -322,7 +323,7 @@ if(COLD && tempSensor < TEMP_START) {
     powerBoard1(1);
 }
 
-if(HOT && tempSensor < TEMP_VERY_HOT-1) {
+if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
     powerBoard1(1);
 }
 
