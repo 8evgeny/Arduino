@@ -310,6 +310,10 @@ if(COLD && tempSensor < (TEMP_COLD-1)) {
     powerCable(0);
 }
 
+if(HOT) {
+    powerCable(0);
+}
+
 if(COLD && tempSensor > TEMP_START+1) {
     powerBoard1(0);
 }
