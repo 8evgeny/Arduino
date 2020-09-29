@@ -17,7 +17,6 @@
 Adafruit_SSD1306 display(OLED_RESET);
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
-
 #define LOGO_HEIGHT   16
 #define LOGO_WIDTH    16
 static const unsigned char PROGMEM logo_bmp[] =
@@ -37,9 +36,6 @@ static const unsigned char PROGMEM logo_bmp[] =
   B01111100, B11110000,
   B01110000, B01110000,
   B00000000, B00110000 };
-
-
-
 
 //****** ПАРАМЕТРЫ *********
 // #define WAIT_PING 60000          // Время ожидания пинга (ms)
@@ -104,8 +100,6 @@ DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temper
 
 // LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
 LiquidCrystal_PCF8574 lcd1(0x27);
-
-
 
 int ping1_A = 0;
 int ping1_B = 0;
@@ -277,9 +271,6 @@ void powerBoard2(bool action){
 //     digitalWrite(relay_board_2, !action);
 //     state_relay_board_2 = action;
 }
-
-
-
 
 
 void testdrawline() {
@@ -570,7 +561,37 @@ void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
       }
     }
   }
+
+
 }
+
+void OLED_print(){
+  display.clearDisplay();
+  display.setTextSize(1); // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(2, 0);
+  if(state_relay_heater_cable) display.print("ON");
+  if(!state_relay_heater_cable) display.print("OFF");
+
+  display.setCursor(110, 0);
+  if(state_relay_board_1) display.print("ON");
+  if(!state_relay_board_1) display.print("OFF");
+
+  display.setCursor(40, 0);
+  display.print(millis()/1000);
+  display.setTextSize(2);
+  display.setCursor(10, 15);
+  if(HOT) {
+   display.print("+");
+  }
+  if(COLD) {
+   display.print("-");
+  }
+  display.print(tempSensor);
+
+  display.display();      // Show initial text
+
+ }
 
 
 void setup()
@@ -600,67 +621,44 @@ void setup()
   powerBoard1(0);
   power_board1_on = false;
 
-
-
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
-  display.display();
-  delay(2000); // Pause for 2 seconds
-
+//  display.display();
+//  delay(2000); // Pause for 2 seconds
   // Clear the buffer
-  display.clearDisplay();
-
-  // Draw a single pixel in white
-  display.drawPixel(10, 10, SSD1306_WHITE);
-
+//  display.clearDisplay();
+//  display.drawPixel(10, 10, SSD1306_WHITE);
   // Show the display buffer on the screen. You MUST call display() after
   // drawing commands to make them visible on screen!
-  display.display();
-  delay(2000);
+//  display.display();
+//  delay(2000);
   // display.display() is NOT necessary after every single drawing command,
   // unless that's what you want...rather, you can batch up a bunch of
   // drawing operations and then update the screen all at once by calling
   // display.display(). These examples demonstrate both approaches...
-
-  testdrawline();      // Draw many lines
-
-  testdrawrect();      // Draw rectangles (outlines)
-
-  testfillrect();      // Draw rectangles (filled)
-
-  testdrawcircle();    // Draw circles (outlines)
-
-  testfillcircle();    // Draw circles (filled)
-
-  testdrawroundrect(); // Draw rounded rectangles (outlines)
-
-  testfillroundrect(); // Draw rounded rectangles (filled)
-
-  testdrawtriangle();  // Draw triangles (outlines)
-
-  testfilltriangle();  // Draw triangles (filled)
-
-  testdrawchar();      // Draw characters of the default font
-
-  testdrawstyles();    // Draw 'stylized' characters
-
-  testscrolltext();    // Draw scrolling text
-
-  testdrawbitmap();    // Draw a small bitmap image
-
+//  testdrawline();      // Draw many lines
+//  testdrawrect();      // Draw rectangles (outlines)
+//  testfillrect();      // Draw rectangles (filled)
+//  testdrawcircle();    // Draw circles (outlines)
+//  testfillcircle();    // Draw circles (filled)
+//  testdrawroundrect(); // Draw rounded rectangles (outlines)
+//  testfillroundrect(); // Draw rounded rectangles (filled)
+//  testdrawtriangle();  // Draw triangles (outlines)
+//  testfilltriangle();  // Draw triangles (filled)
+//  testdrawchar();      // Draw characters of the default font
+//  testdrawstyles();    // Draw 'stylized' characters
+//  testscrolltext();    // Draw scrolling text
+//  testdrawbitmap();    // Draw a small bitmap image
   // Invert and restore display, pausing in-between
-  display.invertDisplay(true);
-  delay(1000);
-  display.invertDisplay(false);
-  delay(1000);
-
-  testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
-
-
-
-
+//  display.invertDisplay(true);
+//  delay(1000);
+//  display.invertDisplay(false);
+//  delay(1000);
+//  testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
+  display.clearDisplay();
+  display.setTextSize(2);
  }
 
 void loop()
@@ -817,10 +815,13 @@ if(HOT && tempSensor > TEMP_VERY_HOT) {
 
 // }
 
-lcd.setCursor(6, 0);
-lcd1.setCursor(6, 0);
-lcd.print(millis()/1000);
-lcd1.print(millis()/1000);
+  lcd.setCursor(6, 0);
+  lcd1.setCursor(6, 0);
+  lcd.print(millis()/1000);
+  lcd1.print(millis()/1000);
+
+
+ OLED_print();
 
 
 }
