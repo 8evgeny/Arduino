@@ -709,42 +709,42 @@ void loop()
 //  }
 
 
-if(COLD && tempSensor > TEMP_COLD) {
+  if(COLD && tempSensor > TEMP_COLD) {
     powerCable(1);
-}
+  }
 
-if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
+  if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
     powerCable(0);
-}
+  }
 
-//if(HOT) {
-//    powerCable(0);
-//}
-
-//тестовый подогрев
-if(HOT && tempSensor < TEMP_TEST - 1) {
-    powerCable(1);
-}
-if(HOT && tempSensor > TEMP_TEST) {
+  if(HOT) {
     powerCable(0);
-}
+  }
+
+    //тестовый подогрев
+    //if(HOT && tempSensor < TEMP_TEST - 1) {
+    //    powerCable(1);
+    //}
+    //if(HOT && tempSensor > TEMP_TEST) {
+    //    powerCable(0);
+    //}
 
 
-if(COLD && tempSensor > TEMP_START + DELTA) {
+  if(COLD && tempSensor > TEMP_START + DELTA) {
     powerBoard1(0);
-}
+  }
 
-if(COLD && tempSensor < TEMP_START) {
+  if(COLD && tempSensor < TEMP_START) {
     powerBoard1(1);
-}
+  }
 
-if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
+  if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
     powerBoard1(1);
-}
+  }
 
-if(HOT && tempSensor > TEMP_VERY_HOT) {
+  if(HOT && tempSensor > TEMP_VERY_HOT) {
     powerBoard1(0);
-}
+  }
 
 
 // if(very_cold ){
