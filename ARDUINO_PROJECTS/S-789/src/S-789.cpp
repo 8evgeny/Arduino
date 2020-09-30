@@ -50,7 +50,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 #define TEMP_COLD 10               // Температура включения подогрева (минус)
 #define DELTA 3                    // Дельта
 
-#define TEMP_TEST 60               // Температура тестового подогрева
+#define TEMP_TEST 65               // Температура тестового подогрева
 
 // Подогрев -10гр. и ниже - включается  -7гр. - отключается
 
@@ -709,19 +709,25 @@ void loop()
 //  }
 
 
-//if(COLD && tempSensor > TEMP_COLD) {
-//    powerCable(1);
-//}
+if(COLD && tempSensor > TEMP_COLD) {
+    powerCable(1);
+}
 
-//if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
-//    powerCable(0);
-//}
+if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
+    powerCable(0);
+}
 
 //if(HOT) {
 //    powerCable(0);
 //}
 
-
+//тестовый подогрев
+if(HOT && tempSensor < TEMP_TEST - 1) {
+    powerCable(1);
+}
+if(HOT && tempSensor > TEMP_TEST) {
+    powerCable(0);
+}
 
 
 if(COLD && tempSensor > TEMP_START + DELTA) {
@@ -739,22 +745,6 @@ if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
 if(HOT && tempSensor > TEMP_VERY_HOT) {
     powerBoard1(0);
 }
-
-//тестовый подогрев
-if(HOT && tempSensor < TEMP_TEST) {
-    powerCable(1);
-}
-
-if(HOT && tempSensor > TEMP_TEST + 1) {
-    powerCable(0);
-}
-
-
-
-
-
-
-
 
 
 // if(very_cold ){
