@@ -50,7 +50,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 #define TEMP_COLD 10               // Температура включения подогрева (минус)
 #define DELTA 3                    // Дельта
 
-#define TEMP_TEST 65               // Температура тестового подогрева
+#define TEMP_TEST 80               // Температура тестового подогрева
 
 // Подогрев -10гр. и ниже - включается  -7гр. - отключается
 
