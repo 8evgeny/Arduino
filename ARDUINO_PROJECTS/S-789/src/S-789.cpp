@@ -238,12 +238,12 @@ return pingstate;
 void powerCable(bool action){
 
 // Принудительно включаем подогрев
- digitalWrite(relay_heater_cable, 1);
- state_relay_heater_cable = 1;
+// digitalWrite(relay_heater_cable, 1);
+// state_relay_heater_cable = 1;
 
+ digitalWrite(relay_heater_cable, action);
+ state_relay_heater_cable = action;
 
-// digitalWrite(relay_heater_cable, action);
-// state_relay_heater_cable = action;
  lcd.setCursor(0, 0);
  lcd1.setCursor(0, 0);
  if(action){
