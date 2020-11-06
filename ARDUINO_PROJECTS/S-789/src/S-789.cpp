@@ -47,16 +47,15 @@ static const unsigned char PROGMEM logo_bmp[] =
 #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
 //#define TEMP_VERY_COLD 30
-#define TEMP_COLD 10               // Температура включения подогрева (минус)
-#define DELTA 3                    // Дельта
+#define TEMP_COLD 15               // Температура включения подогрева (минус)
+#define DELTA 5                    // Дельта
+// Подогрев -15гр. и ниже - включается  -10гр. - отключается
 
 #define TEMP_TEST 80               // Температура тестового подогрева
 
-// Подогрев -10гр. и ниже - включается  -7гр. - отключается
+#define TEMP_START 20              // Температура старта (минус)
 
-#define TEMP_START 10              // Температура старта (минус)
-
-// Старт платы -10 гр. и выше  -13 гр и ниже - останов платы
+// Старт платы -20 гр. и выше  -25 гр и ниже - останов платы
 
 //#define TEMP_HOT 2
 #define TEMP_VERY_HOT 80
@@ -172,6 +171,7 @@ float receive_temp(){
   // Формируем температуру для вывода: "склеиваем" значения,затем умножаем на коэффициент, (для 12 бит по умолчанию - это 0,0625)
   temp_minus = 0;
   temp_minus = data[7] & B10000000;
+
   if (temp_minus != 128){
    HOT = true;
    COLD = false;
@@ -538,12 +538,12 @@ void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
     icons[f][YPOS]   = -LOGO_HEIGHT;
     icons[f][DELTAY] = random(1, 6);
-    Serial.print(F("x: "));
-    Serial.print(icons[f][XPOS], DEC);
-    Serial.print(F(" y: "));
-    Serial.print(icons[f][YPOS], DEC);
-    Serial.print(F(" dy: "));
-    Serial.println(icons[f][DELTAY], DEC);
+//    Serial.print(F("x: "));
+//    Serial.print(icons[f][XPOS], DEC);
+//    Serial.print(F(" y: "));
+//    Serial.print(icons[f][YPOS], DEC);
+//    Serial.print(F(" dy: "));
+//    Serial.println(icons[f][DELTAY], DEC);
   }
 
   for(;;) { // Loop forever...
@@ -676,7 +676,6 @@ void loop()
  tempSensor = receive_temp();
  print_temperature_1637(tempSensor);
  print_temperature_1602(tempSensor);
-
 
 //if( COLD && tempSensor > TEMP_VERY_COLD) very_cold = true;
 //if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
@@ -849,6 +848,7 @@ void receive_temp_dallas(DeviceAddress deviceAddress){
    sensor.requestTemperatures();
    tempSensor = sensor.getTempC(deviceAddress);
 }
+
 
 
 
