@@ -57,7 +57,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 // Старт платы -20 гр. и выше  -25 гр и ниже - останов платы
 
 //#define TEMP_HOT 2
-#define TEMP_VERY_HOT 80
+#define TEMP_VERY_HOT 95
 //**************************
 const int TEMP_UPDATE_TIME = 1000; // время ожидания ds1820
 int number_restart = NUMBER_RESTART;
@@ -99,7 +99,8 @@ OneWire ds1820(ONE_WIRE_BUS);
 DallasTemperature sensor(&ds1820);// Pass our oneWire reference to Dallas Temperature.
 
 // LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее распространенное значение), а также параметры экрана (в случае LCD 1602 - 2 строки по 16 символов в каждой
-LiquidCrystal_PCF8574 lcd1(0x27);
+LiquidCrystal_PCF8574 lcd1(0x27); //Адрес на шине I2C: 0x3F или 0x27 (зависит от модификации чипа)
+//LiquidCrystal_PCF8574 lcd1(0x3F);
 
 int ping1_A = 0;
 int ping1_B = 0;
