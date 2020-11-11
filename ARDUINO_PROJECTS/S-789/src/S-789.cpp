@@ -57,7 +57,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 // Старт платы -20 гр. и выше  -25 гр и ниже - останов платы
 
 //#define TEMP_HOT 2
-#define TEMP_VERY_HOT 95
+#define TEMP_VERY_HOT 110
 //**************************
 const int TEMP_UPDATE_TIME = 1000; // время ожидания ds1820
 int number_restart = NUMBER_RESTART;
