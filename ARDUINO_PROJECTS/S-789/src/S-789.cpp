@@ -737,13 +737,18 @@ void loop()
     powerBoard1(1);
   }
 
-  if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
+  if(HOT) {
     powerBoard1(1);
   }
 
-  if(HOT && tempSensor > TEMP_VERY_HOT) {
-    powerBoard1(0);
-  }
+
+//  if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
+//    powerBoard1(1);
+//  }
+
+//  if(HOT && tempSensor > TEMP_VERY_HOT) {
+//    powerBoard1(0);
+//  }
 
 
 // if(very_cold ){
