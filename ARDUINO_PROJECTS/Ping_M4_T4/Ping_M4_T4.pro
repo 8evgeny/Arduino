@@ -23,7 +23,7 @@ TEMPLATE = app
 
 #Задаем каталог для собранного бинарника и его имя
 DESTDIR = ../bin
-TARGET = S-789
+TARGET = Ping_M4_T4
 
 #Дальше подключим директории поиска заголовочных файлов
 # Подключаем заголовочные файлы
@@ -55,7 +55,7 @@ QMAKE_POST_LINK += /usr/bin/avr-objcopy -O ihex -j .text -j .data -S ${TARGET} $
 
 # Заголовки Arduino Core
 HEADERS += $$files($$ARDUINO_DIR/cores/arduino/*.h) \
-    include/S-789.h
+    include/Ping_M4_T4.h
 HEADERS += $$files($$ARDUINO_DIR/variants/standard/*.h)
 
 
