@@ -80,21 +80,20 @@ const int ping2 = 13;
 const int ping1 = 12;
 #define ONE_WIRE_BUS 11
 const int relay_board_1 = 10;
-
+const int relay_board_2 = 7;
 //pins definitions for LCD
-#define RS 9
-#define E 8
-#define DB4 7
-#define DB5 6
-#define DB6 5
-#define DB7 4
+//#define RS 9
+//#define E 8
+//#define DB4 7
+//#define DB5 6
+//#define DB6 5
+//#define DB7 4
 
 const int relay_heater_cable = 3;
-const int relay_board_2 = 2;
 
 // Создаем объекты для вывода на 4-значный дисплей и LCD
  TM1637 tm1637(CLK,DIO);
- LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
+// LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
 
 // Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
 OneWire ds1820(ONE_WIRE_BUS);
@@ -128,10 +127,10 @@ DeviceAddress insideThermometer, outsideThermometer; // arrays to hold device ad
 bool checkHotAlarm(DeviceAddress deviceAddress){
  bool hot = false ;
  if (sensor.hasAlarm(deviceAddress)){
-  lcd.setCursor(0, 0);
+//  lcd.setCursor(0, 0);
   lcd1.setCursor(0, 0);
   if(HOT){
-  lcd.print("Hot!");
+//  lcd.print("Hot!");
   lcd1.print("Hot!");
   hot = true;
   }
@@ -143,10 +142,10 @@ bool checkHotAlarm(DeviceAddress deviceAddress){
 bool checkColdAlarm(DeviceAddress deviceAddress){
  bool cold = false;
  if (sensor.hasAlarm(deviceAddress)){
-  lcd.setCursor(0, 0);
+//  lcd.setCursor(0, 0);
   lcd1.setCursor(0, 0);
   if(COLD){
-   lcd.print("Cold!");
+//   lcd.print("Cold!");
    lcd1.print("Cold!");
    cold = true;
   }
@@ -205,17 +204,17 @@ void print_temperature_1637(float temper) {
   }
 
 void print_temperature_1602(float temper) {
-      lcd.setCursor(0, 1);
+//      lcd.setCursor(0, 1);
       lcd1.setCursor(0, 1);
       if(HOT) {
-          lcd.print("+");
+//          lcd.print("+");
           lcd1.print("+");
       }
       if(COLD) {
-          lcd.print("-");
+//          lcd.print("-");
           lcd1.print("-");
       }
-      lcd.print(temper);
+//      lcd.print(temper);
       lcd1.print(temper);
   }
 
@@ -227,9 +226,9 @@ bool checkPing(){
  pingstate = true;
  while(ping1_A == ping1_B) {
   ping1_A = digitalRead(ping1);
-  lcd.setCursor(6, 0);
+//  lcd.setCursor(6, 0);
   lcd1.setCursor(6, 0);
-  lcd.print(millis()/1000);
+//  lcd.print(millis()/1000);
   lcd1.print(millis()/1000);
   if (millis() - timeping > wait_ping) {
    pingstate = false;
@@ -248,14 +247,14 @@ void powerCable(bool action){
  digitalWrite(relay_heater_cable, action);
  state_relay_heater_cable = action;
 
- lcd.setCursor(0, 0);
+// lcd.setCursor(0, 0);
  lcd1.setCursor(0, 0);
  if(action){
-     lcd.print("ON    ");
+//     lcd.print("ON    ");
      lcd1.print("ON    ");
  }
  if(!action){
-     lcd.print("OFF  ");
+//     lcd.print("OFF  ");
      lcd1.print("OFF  ");
  }
 }
@@ -263,16 +262,16 @@ void powerCable(bool action){
 void powerBoard1(bool action){
     digitalWrite(relay_board_1, !action);
     state_relay_board_1 = action;
-    lcd.setCursor(13, 0);
+//    lcd.setCursor(13, 0);
     lcd1.setCursor(13, 0);
     if(!action){
         power_board1_on = false;
-        lcd.print("OFF");
+//        lcd.print("OFF");
         lcd1.print("OFF");
     }
     if(action){
         power_board1_on = true;
-        lcd.print("ON ");
+//        lcd.print("ON ");
         lcd1.print("ON ");
     }
 }
@@ -614,7 +613,7 @@ void setup()
 
   tm1637.init();
   tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
-  lcd.begin(16, 2);           // Задаем размерность экрана
+//  lcd.begin(16, 2);           // Задаем размерность экрана
   sensor.begin();
   sensor.getAddress(insideThermometer, 0);
 //  sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
@@ -839,9 +838,9 @@ void loop()
 
 // }
 
-  lcd.setCursor(6, 0);
+//  lcd.setCursor(6, 0);
   lcd1.setCursor(6, 0);
-  lcd.print(millis()/1000);
+//  lcd.print(millis()/1000);
   lcd1.print(millis()/1000);
 
 
