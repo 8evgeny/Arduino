@@ -1,3 +1,5 @@
+//sudo avrdude -c  usbasp  -p m328p -P /dev/ttyS0 -b 19200 -U flash:w:S-789.hex:i
+
 #include "TM1637.h"
 #include <OneWire.h>
 #include <LiquidCrystal.h>
