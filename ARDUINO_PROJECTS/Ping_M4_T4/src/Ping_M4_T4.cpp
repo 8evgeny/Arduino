@@ -42,7 +42,7 @@ static const unsigned char PROGMEM logo_bmp[] =
 //****** ПАРАМЕТРЫ *********
 // #define WAIT_PING 60000          // Время ожидания пинга (ms)
 
-#define WAIT_PING 6000000000       // Для тестов (ms)
+#define WAIT_PING 3000             // Для тестов (ms)
 
 #define NUMBER_RESTART 3           // Колл попыток перезапуска при отсутствии пинга
 #define WAIT_POWER_ON 180000       // Ждем 3 мин прогрузки вычислителя после перезагрузки
@@ -114,10 +114,14 @@ bool very_cold;
 bool very_hot;
 bool COLD;
 bool HOT;
-bool ping_status = false;
+bool ping_status1 = false;
+bool ping_status2 = false;
+bool ping_change1 = false;
+bool ping_change2 = false;
 bool power_board1_on;
 bool power_board2_on;
-unsigned long timeping;
+unsigned long  timechangePing1;
+unsigned long  timechangePing2;
 float tempSensor =0;
 int temp_minus;
 byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B11111100,B10010000}; // это -55 градусов
@@ -219,28 +223,59 @@ void print_temperature_1602(float temper) {
       lcd1.print(temper);
   }
 
-void printTime(){
-      lcd1.setCursor(6, 0);
+void printTime_lcd1(){
+      lcd1.setCursor(5, 0);
       lcd1.print(millis()/1000);
 
 }
 
-bool checkPing(){
- bool pingstate;
- ping1_A = digitalRead(ping1);
- ping1_B = ping1_A;
- timeping = millis();
- pingstate = true;
- while(ping1_A == ping1_B) {
-  ping1_A = digitalRead(ping1);
-  printTime();
+bool changePing1(){//проверяем изменение состояния 1 пинга
+ping1_A = digitalRead(ping1);
+    if(ping1_A == ping1_B) return false;
+    if(ping1_A != ping1_B) {
+        ping1_B = ping1_A;
+        timechangePing1 = millis();
+        return true;
+    }
+}
 
-  if (millis() - timeping > wait_ping) {
-   pingstate = false;
-   break;
-  }
- }
-return pingstate;
+bool changePing2(){//проверяем изменение состояния 2 пинга
+    ping2_A = digitalRead(ping2);
+        if(ping2_A == ping2_B) return false;
+        if(ping2_A != ping2_B) {
+            ping2_B = ping2_A;
+            timechangePing2 = millis();
+            return true;
+        }
+}
+
+bool checkPing(){
+// bool pingstate = true;
+// ping1_A = digitalRead(ping1);
+// ping2_A = digitalRead(ping2);
+// ping1_B = ping1_A;
+// ping2_B = ping2_A;
+// timeping = millis();
+
+// while(ping1_A == ping1_B) {
+//  ping1_A = digitalRead(ping1);
+//  if (millis() - timeping > wait_ping) {
+//   pingstate = false;
+//   break;
+//  }
+// }
+
+// if(pingstate){ //Если проверка первого пинга успешна - проверяем второй пинг
+//  timeping = millis();
+//  while(ping2_A == ping2_B) {
+//  ping2_A = digitalRead(ping2);
+//  if (millis() - timeping > wait_ping) {
+//   pingstate = false;
+//   break;
+//  }
+// }
+//}
+//return pingstate;
 }
 
 void powerCable(bool action){
@@ -248,40 +283,25 @@ void powerCable(bool action){
  digitalWrite(relay_heater_cable, action);
  state_relay_heater_cable = action;
 
- lcd1.setCursor(0, 0);
- if(action){
-     lcd1.print("ON    ");
- }
- if(!action){
-     lcd1.print("OFF  ");
- }
+// lcd1.setCursor(0, 0);
+// if(action){
+//     lcd1.print("ON    ");
+// }
+// if(!action){
+//     lcd1.print("OFF  ");
+// }
 
 }
 
 void powerBoard1(bool action){
     digitalWrite(relay_board_1, !action);
     state_relay_board_1 = action;
-    lcd1.setCursor(0, 0);
-    if(!action){
-        power_board1_on = false;
-        lcd1.print("OFF");
-    }
-    if(action){
-        power_board1_on = true;
-        lcd1.print("ON ");
-    }
+
 }
 
 void powerBoard2(bool action){
      digitalWrite(relay_board_2, !action);
      state_relay_board_2 = action;
-     lcd1.setCursor(13, 0);
-     if(action){
-         lcd1.print("ON    ");
-     }
-     if(!action){
-         lcd1.print("OFF  ");
-     }
 }
 
 void testdrawline() {
@@ -616,6 +636,26 @@ void OLED_print(){
 
  }
 
+void lcd1_print(){
+printTime_lcd1();
+lcd1.setCursor(0, 0);
+if(power_board1_on)  lcd1.print("OFF");
+if(!power_board1_on)   lcd1.print("ON ");
+
+lcd1.setCursor(13, 0);
+if(!power_board1_on)  lcd1.print("ON    ");
+if(power_board1_on) lcd1.print("OFF  ");
+
+lcd1.setCursor(0, 1);
+if(ping1_B == 1)  lcd1.print("1");
+if(ping1_B == 0)  lcd1.print("0");
+
+lcd1.setCursor(13, 1);
+if(ping2_B == 1)  lcd1.print("1");
+if(ping2_B == 0)  lcd1.print("0");
+
+}
+
 void setup()
  {
   delay(3000);
@@ -682,6 +722,8 @@ void setup()
 //  testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
   display.clearDisplay();
   display.setTextSize(2);
+  timechangePing1 = millis();
+  timechangePing2 = millis();
  }
 
 void loop()
@@ -690,7 +732,7 @@ void loop()
 //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
  tempSensor = receive_temp();
  print_temperature_1637(tempSensor);
- print_temperature_1602(tempSensor);
+// print_temperature_1602(tempSensor); //Отключаем для lcd1
 
 
   if(COLD && tempSensor > TEMP_COLD) {
@@ -727,22 +769,30 @@ void loop()
   }
 
 
-// if (power_board1_on){
+// if (power_board1_on && power_board2_on){
 
-//  ping_status = checkPing();
+  ping_change1 = changePing1();
+  ping_change2 = changePing2();
 
-//  if(ping_status ){ //пинг ok
-//  lcd.setCursor(7, 1);
-//  lcd.print("PingOK  ");
-//  lcd1.setCursor(7, 1);
-//  lcd1.print("PingOK  ");
-//  }
+  if(ping_change1) ping_status1 = true;
+  if(ping_change2) ping_status2 = true;
+  if(!ping_change1 && (millis() - timechangePing1 < WAIT_PING)) ping_status1 = true;
+  if(!ping_change2 && (millis() - timechangePing2 < WAIT_PING)) ping_status2 = true;
+  if(!ping_change1 && (millis() - timechangePing1 > WAIT_PING)) ping_status1 = false;
+  if(!ping_change2 && (millis() - timechangePing2 > WAIT_PING)) ping_status2 = false;
 
-//  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
+
+  lcd1.setCursor(1, 1);
+  if(ping_status1 )  lcd1.print("+");
+  if(!ping_status1 ) lcd1.print("-");
+  lcd1.setCursor(14, 1);
+  if(ping_status2 )  lcd1.print("+");
+  if(!ping_status2 ) lcd1.print("-");
+
+
+  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
 
 //  if(!ping_status){ //действия если нет пинга
-//   lcd.setCursor(7, 1);
-//   lcd.print("NoPing  ");
 //   lcd1.setCursor(7, 1);
 //   lcd1.print("NoPing  ");
 //   tempSensor = receive_temp();
@@ -752,9 +802,6 @@ void loop()
 //   delay(5000);
 //   ++restart;
 //   if(number_restart == restart-1){
-//      lcd.setCursor(7, 1);
-//      lcd.print("wait ....");
-//      lcd.print(restart);
 //      lcd1.setCursor(7, 1);
 //      lcd1.print("wait ....");
 //      lcd1.print(restart);
@@ -762,9 +809,7 @@ void loop()
 
 //  restart = 0;
 //  }
-//   lcd.setCursor(7, 1);
-//   lcd.print("Restart");
-//   lcd.print(restart);
+
 //   lcd1.setCursor(7, 1);
 //   lcd1.print("Restart");
 //   lcd1.print(restart);
@@ -774,22 +819,16 @@ void loop()
 
 //  if(ping_status && (restart!=0)){ //пинг появился
 //  restart = 0;
-//  lcd.setCursor(7, 1);
-//  lcd.print("        ");
 //  lcd1.setCursor(7, 1);
 //  lcd1.print("        ");
 //  }
 
-// }
+// }//end if (power_board1_on && power_board2_on){
 
-
-  lcd1.setCursor(6, 0);
-
-  lcd1.print(millis()/1000);
 
 
  OLED_print();
-
+ lcd1_print();
 
 }
 
