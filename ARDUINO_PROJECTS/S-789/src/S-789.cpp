@@ -47,14 +47,11 @@ static const unsigned char PROGMEM logo_bmp[] =
 #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
 //#define TEMP_VERY_COLD 30
-#define TEMP_COLD 15               // Температура включения подогрева (минус)
-#define DELTA 5                    // Дельта
-// Подогрев -15гр. и ниже - включается  -10гр. - отключается
-#define TEMP_TEST 80               // Температура тестового подогрева
+#define TEMP_CABLE 30               // Температура выключения подогрева (плюс)
 
 #define TEMP_START 20              // Температура старта (минус)
-
-// Старт платы -20 гр. и выше  -25 гр и ниже - останов платы
+#define TEMP_STOP 30              // Температура старта (минус)
+// Старт платы -20 гр. и выше  -30 гр и ниже - останов платы
 
 //#define TEMP_HOT 2
 #define TEMP_VERY_HOT 110
@@ -116,6 +113,8 @@ bool HOT;
 bool ping_status = false;
 bool power_board1_on;
 unsigned long timeping;
+unsigned long time_cable_change = 0;
+unsigned long time_board_change = 0;
 float tempSensor =0;
 int temp_minus;
 byte data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B11111100,B10010000}; // это -55 градусов
@@ -238,10 +237,7 @@ return pingstate;
 }
 
 void powerCable(bool action){
-
-// Принудительно включаем подогрев
-// digitalWrite(relay_heater_cable, 1);
-// state_relay_heater_cable = 1;
+if (millis() - time_cable_change > 5000){
 
  digitalWrite(relay_heater_cable, action);
  state_relay_heater_cable = action;
@@ -255,10 +251,12 @@ void powerCable(bool action){
  if(!action){
      lcd.print("OFF  ");
      lcd1.print("OFF  ");
+  }
  }
 }
 
 void powerBoard1(bool action){
+    if (millis() - time_board_change > 5000){
     digitalWrite(relay_board_1, !action);
     state_relay_board_1 = action;
     lcd.setCursor(13, 0);
@@ -273,6 +271,7 @@ void powerBoard1(bool action){
         lcd.print("ON ");
         lcd1.print("ON ");
     }
+  }
 }
 
 void powerBoard2(bool action){
@@ -626,7 +625,9 @@ void setup()
   pinMode(relay_heater_cable, OUTPUT);
 
   powerCable(1);
+  time_cable_change = millis();
   powerBoard1(0);
+  time_board_change = millis();
   power_board1_on = false;
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -677,165 +678,29 @@ void loop()
  print_temperature_1637(tempSensor);
  print_temperature_1602(tempSensor);
 
-//if( COLD && tempSensor > TEMP_VERY_COLD) very_cold = true;
-//if( COLD && tempSensor <= TEMP_VERY_COLD) very_cold = false;
+ if(COLD || (HOT && tempSensor < TEMP_CABLE)) {
+   powerCable(1);
+   time_cable_change = millis();
+ }
 
-//  very_cold = checkColdAlarm(insideThermometer);
-//  if(very_cold){ //действия при переохлаждении - греем и ждем
-//   powerCable(1); //светодиод на реле не горит - подогрев включен по умолчанию
-//   powerBoard1(0); //светодиод на реле не горит
-//   while(very_cold){
-//    tempSensor = receive_temp();
-//    print_temperature_1602(tempSensor);
-//    print_temperature_1637(tempSensor);
-//    very_cold = checkColdAlarm(insideThermometer);
-//   }
-//  }
-
-//if( HOT && tempSensor > TEMP_VERY_HOT) very_hot = true;
-//if( HOT && tempSensor <= TEMP_VERY_HOT) very_hot = false;
-
-//  very_hot = checkHotAlarm(insideThermometer);
-//  if(very_hot){ //действия при перегреве
-//  powerCable(0);
-//  powerBoard1(0);
-//   while(very_hot){
-//    tempSensor = receive_temp();
-//    print_temperature_1602(tempSensor);
-//    print_temperature_1637(tempSensor);
-//    very_hot = checkHotAlarm(insideThermometer);
-//   }
-//  }
-
-
-  if(COLD && tempSensor > TEMP_COLD) {
-    powerCable(1);
-  }
-
-  if(COLD && tempSensor < (TEMP_COLD - DELTA)) {
+  if(HOT && tempSensor > TEMP_CABLE) {
     powerCable(0);
+    time_cable_change = millis();
   }
 
-  if(HOT) {
-    powerCable(0);
-  }
-
-    //тестовый подогрев
-    //if(HOT && tempSensor < TEMP_TEST - 1) {
-    //    powerCable(1);
-    //}
-    //if(HOT && tempSensor > TEMP_TEST) {
-    //    powerCable(0);
-    //}
-
-
-  if(COLD && tempSensor > TEMP_START + DELTA) {
-    powerBoard1(0);
-  }
-
-  if(COLD && tempSensor < TEMP_START) {
+  if ((HOT && tempSensor < TEMP_VERY_HOT) ||
+     (COLD && tempSensor <= TEMP_START) ||
+     (COLD && tempSensor > TEMP_START && tempSensor <= TEMP_STOP)) {
     powerBoard1(1);
+    time_board_change = millis();
   }
 
-//  if(HOT) {
-//    powerBoard1(1);
-//  }
-
-
-  if(HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
-    powerBoard1(1);
-  }
-
-  if(HOT && tempSensor > TEMP_VERY_HOT) {
+  if ((COLD && tempSensor > TEMP_STOP) ||
+     (HOT && tempSensor > TEMP_VERY_HOT)) {
     powerBoard1(0);
+    time_board_change = millis();
   }
 
-
-// if(very_cold ){
-//  powerCable(1);
-//  powerBoard1(0);
-// }
-
-// if(COLD && (tempSensor > TEMP_COLD) && !very_cold){
-//  powerCable(1);
-//  powerBoard1(0);
-// }
-
-// if(COLD && tempSensor < TEMP_COLD) {
-//  powerBoard1(1);
-//  powerCable(1);
-// }
-
-// if(HOT && tempSensor < TEMP_HOT) {
-//  powerCable(1);
-//  powerBoard1(1);
-// }
-
-// if(HOT && (tempSensor > TEMP_HOT) && !very_hot){//выключаем подогрев и включаем питание платы
-//  powerCable(0);
-//  powerBoard1(1);
-// }
-
-// if(very_hot ){
-//  powerCable(0);
-//  powerBoard1(0);
-// }
-
-
-// if (power_board1_on){
-
-//  ping_status = checkPing();
-
-//  if(ping_status ){ //пинг ok
-//  lcd.setCursor(7, 1);
-//  lcd.print("PingOK  ");
-//  lcd1.setCursor(7, 1);
-//  lcd1.print("PingOK  ");
-//  }
-
-//  digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
-
-//  if(!ping_status){ //действия если нет пинга
-//   lcd.setCursor(7, 1);
-//   lcd.print("NoPing  ");
-//   lcd1.setCursor(7, 1);
-//   lcd1.print("NoPing  ");
-//   tempSensor = receive_temp();
-//   print_temperature_1602(tempSensor);
-//   print_temperature_1637(tempSensor);
-//   powerBoard1(0);
-//   delay(5000);
-//   ++restart;
-//   if(number_restart == restart-1){
-//      lcd.setCursor(7, 1);
-//      lcd.print("wait ....");
-//      lcd.print(restart);
-//      lcd1.setCursor(7, 1);
-//      lcd1.print("wait ....");
-//      lcd1.print(restart);
-//   delay(WAIT_PING_RESTART);
-
-//  restart = 0;
-//  }
-//   lcd.setCursor(7, 1);
-//   lcd.print("Restart");
-//   lcd.print(restart);
-//   lcd1.setCursor(7, 1);
-//   lcd1.print("Restart");
-//   lcd1.print(restart);
-//  powerBoard1(1);
-//  delay(WAIT_POWER_ON);//ждем прогрузки платы
-//  }
-
-//  if(ping_status && (restart!=0)){ //пинг появился
-//  restart = 0;
-//  lcd.setCursor(7, 1);
-//  lcd.print("        ");
-//  lcd1.setCursor(7, 1);
-//  lcd1.print("        ");
-//  }
-
-// }
 
   lcd.setCursor(6, 0);
   lcd1.setCursor(6, 0);
