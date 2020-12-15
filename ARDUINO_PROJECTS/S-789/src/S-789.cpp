@@ -47,7 +47,8 @@ static const unsigned char PROGMEM logo_bmp[] =
 #define WAIT_PING_RESTART 1800000  // Ждем 30 мин потом пробуем опять ловить пинг
 
 //#define TEMP_VERY_COLD 30
-#define TEMP_CABLE 30               // Температура выключения подогрева (плюс)
+#define TEMP_CABLE_OFF 30            // Температура выключения подогрева (плюс)
+#define TEMP_CABLE_ON 10           // Температура включения подогрева (плюс)
 
 #define TEMP_START 20              // Температура старта (минус)
 #define TEMP_STOP 30              // Температура старта (минус)
@@ -238,10 +239,9 @@ return pingstate;
 
 void powerCable(bool action){
 if (millis() - time_cable_change > 5000){
-
+ time_cable_change = millis();
  digitalWrite(relay_heater_cable, action);
  state_relay_heater_cable = action;
-
  lcd.setCursor(0, 0);
  lcd1.setCursor(0, 0);
  if(action){
@@ -257,17 +257,16 @@ if (millis() - time_cable_change > 5000){
 
 void powerBoard1(bool action){
     if (millis() - time_board_change > 5000){
+    time_board_change = millis();
     digitalWrite(relay_board_1, !action);
     state_relay_board_1 = action;
     lcd.setCursor(13, 0);
     lcd1.setCursor(13, 0);
     if(!action){
-        power_board1_on = false;
         lcd.print("OFF");
         lcd1.print("OFF");
     }
     if(action){
-        power_board1_on = true;
         lcd.print("ON ");
         lcd1.print("ON ");
     }
@@ -626,9 +625,13 @@ void setup()
 
   powerCable(1);
   time_cable_change = millis();
+  state_relay_heater_cable = true;
+
   powerBoard1(0);
   time_board_change = millis();
-  power_board1_on = false;
+  state_relay_board_1 = false;
+
+  state_relay_board_2 = false;
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
@@ -678,28 +681,50 @@ void loop()
  print_temperature_1637(tempSensor);
  print_temperature_1602(tempSensor);
 
- if(COLD || (HOT && tempSensor < TEMP_CABLE)) {
+if(state_relay_heater_cable){ //если кабель греет
+   if(COLD || (HOT && tempSensor <= TEMP_CABLE_OFF)) {
    powerCable(1);
-   time_cable_change = millis();
- }
+   }
 
-  if(HOT && tempSensor > TEMP_CABLE) {
+   if(HOT && tempSensor > TEMP_CABLE_OFF) {
+   powerCable(0);
+   }
+}
+
+if(!state_relay_heater_cable){//если кабель не греет
+    if(COLD || (HOT && tempSensor <= TEMP_CABLE_ON)) {
+    powerCable(1);
+    }
+    if(HOT && tempSensor > TEMP_CABLE_ON) {
     powerCable(0);
-    time_cable_change = millis();
-  }
+    }
+}
 
-  if ((HOT && tempSensor < TEMP_VERY_HOT) ||
-     (COLD && tempSensor <= TEMP_START) ||
-     (COLD && tempSensor > TEMP_START && tempSensor <= TEMP_STOP)) {
+if(!state_relay_board_1){ //если плата выключена
+  if ( (COLD && tempSensor <= TEMP_START) || (HOT && tempSensor < TEMP_VERY_HOT)) {
     powerBoard1(1);
-    time_board_change = millis();
   }
 
   if ((COLD && tempSensor > TEMP_STOP) ||
      (HOT && tempSensor > TEMP_VERY_HOT)) {
     powerBoard1(0);
-    time_board_change = millis();
   }
+}
+
+
+if(state_relay_board_1){ //если плата включена
+
+    if ((HOT && tempSensor < TEMP_VERY_HOT) ||
+       (COLD && tempSensor > TEMP_START && tempSensor <= TEMP_STOP)) {
+      powerBoard1(1);
+    }
+
+    if ((COLD && tempSensor > TEMP_STOP) ||
+       (HOT && tempSensor > TEMP_VERY_HOT)) {
+      powerBoard1(0);
+    }
+
+}
 
 
   lcd.setCursor(6, 0);
