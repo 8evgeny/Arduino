@@ -217,11 +217,15 @@ void print_1637(float temper) {
   if(state_relay_board_1 && !state_relay_heater_cable) Digits[3] = 3;
 //  Digits[2] = (KL2 / 10);
 //  Digits[3] = (KL2 % 10);
-  tm1637.display(0,Digits[0]);  Digits[3] = 1;
+  tm1637.display(0,Digits[0]);
   tm1637.display(1,Digits[1]);
   tm1637.display(2,Digits[2]);
   tm1637.display(3,Digits[3]);
-  tm1637.point(ping1_A); //ping
+//  tm1637.display(3, {36}); //вывод знака в 4й разряд
+  auto a = millis()/1000;
+  auto b = a%2;
+  if(b == 0)tm1637.point(1);
+  if(b != 0)tm1637.point(0);
   }
 
 
