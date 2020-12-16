@@ -202,6 +202,30 @@ void print_temperature_1637(float temper) {
   tm1637.point(ping1_A); //ping
   }
 
+void print_1637(float temper) {
+  int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
+  int KL1 = temper;
+//  int KL2 = (temper - KL1) * 100;
+  if (KL1 > 99)(KL1 = temper - 100);
+  if(COLD)Digits[0] = 0;
+  if(HOT)Digits[0] = 1;
+  Digits[1] = (KL1 / 10);
+  Digits[2] = (KL1 % 10);
+  if(!state_relay_board_1 && !state_relay_heater_cable) Digits[3] = 0;
+  if(!state_relay_board_1 && state_relay_heater_cable) Digits[3] = 1;
+  if(state_relay_board_1 && state_relay_heater_cable) Digits[3] = 2;
+  if(state_relay_board_1 && !state_relay_heater_cable) Digits[3] = 3;
+//  Digits[2] = (KL2 / 10);
+//  Digits[3] = (KL2 % 10);
+  tm1637.display(0,Digits[0]);  Digits[3] = 1;
+  tm1637.display(1,Digits[1]);
+  tm1637.display(2,Digits[2]);
+  tm1637.display(3,Digits[3]);
+  tm1637.point(ping1_A); //ping
+  }
+
+
+
 void print_temperature_1602(float temper) {
       lcd.setCursor(0, 1);
       lcd1.setCursor(0, 1);
@@ -678,7 +702,10 @@ void loop()
 
 //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
  tempSensor = receive_temp();
- print_temperature_1637(tempSensor);
+
+// print_temperature_1637(tempSensor);//выодит температуру в 4 знаках
+ print_1637(tempSensor); // вся информация
+
  print_temperature_1602(tempSensor);
 
 if(state_relay_heater_cable){ //если кабель греет
