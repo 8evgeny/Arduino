@@ -208,6 +208,28 @@ void print_temperature_1637(float temper) {
   tm1637.point(ping1_A); //ping
   }
 
+void print_ping_1637() {
+  int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
+  int KL1 = millis()/1000;
+  int KL2 = (millis()/1000 - KL1) * 100;
+  if (KL1 > 99)(KL1 = millis()/1000 - 100);
+//  Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
+//  Digits[1] = (KL1 % 10);
+//  Digits[2] = (KL2 / 10);
+//  Digits[3] = (KL2 % 10);
+    Digits[0] = ping1_B;
+    Digits[1] = 0;
+    Digits[2] = 0;
+    Digits[3] = ping2_B;
+  tm1637.init();
+  tm1637.display(0,Digits[0]);
+  tm1637.display(1,Digits[1]);
+  tm1637.display(2,Digits[2]);
+  tm1637.display(3,Digits[3]);
+  tm1637.point(ping1_A); //ping
+  }
+
+
 void print_temperature_1602(float temper) {
 //      lcd.setCursor(0, 1);
       lcd1.setCursor(0, 1);
@@ -735,6 +757,7 @@ void loop()
 // print_temperature_1602(tempSensor); //Отключаем для lcd1
 
 
+
   if(COLD && tempSensor > TEMP_COLD) {
     powerCable(1);
   }
@@ -788,6 +811,8 @@ void loop()
   lcd1.setCursor(14, 1);
   if(ping_status2 )  lcd1.print("+");
   if(!ping_status2 ) lcd1.print("-");
+
+  print_ping_1637();
 
 
   digitalWrite(LED_BUILTIN, ping1_A); //светодиод на ардуине моргает по пингу
