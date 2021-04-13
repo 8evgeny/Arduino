@@ -218,15 +218,17 @@ float receive_temp() {
 }
 
 void print_temperature_1637(float temper) {
-  int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
+  //  int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
+  int8_t Digits[] = {0x01, 0x01, 0x02, 0x03};
   int KL1 = temper;
   int KL2 = (temper - KL1) * 100;
   if (KL1 > 99) (KL1 = temper - 100);
-  Digits[0] = (KL1 / 10);  // раскидываем 4-значное число на цифры
-  Digits[1] = (KL1 % 10);
-  Digits[2] = (KL2 / 10);
-  Digits[3] = (KL2 % 10);
+  //  Digits[0] = (KL1 / 10);  // раскидываем 4-значное число на цифры
+  //  Digits[1] = (KL1 % 10);
+  //  Digits[2] = (KL2 / 10);
+  //  Digits[3] = (KL2 % 10);
   tm1637.display(0, Digits[0]);
+
   tm1637.display(1, Digits[1]);
   tm1637.display(2, Digits[2]);
   tm1637.display(3, Digits[3]);
@@ -236,22 +238,23 @@ void print_temperature_1637(float temper) {
 void print_ping_1637() {
   int8_t Digits[] = {0x00, 0x00, 0x00, 0x00};
   int KL1 = millis() / 1000;
-  int KL2 = (millis() / 1000 - KL1) * 100;
-  if (KL1 > 99) (KL1 = millis() / 1000 - 100);
-  //  Digits[0] = (KL1 / 10); // раскидываем 4-значное число на цифры
-  //  Digits[1] = (KL1 % 10);
-  //  Digits[2] = (KL2 / 10);
-  //  Digits[3] = (KL2 % 10);
-  Digits[0] = ping1_B;
-  Digits[1] = 0;
-  Digits[2] = 0;
-  Digits[3] = ping2_B;
-  tm1637.init();
-  tm1637.display(0, Digits[0]);
-  tm1637.display(1, Digits[1]);
-  tm1637.display(2, Digits[2]);
-  tm1637.display(3, Digits[3]);
-  tm1637.point(ping1_A);  // ping
+
+  if (KL1 > 59) (KL1 = millis() / 1000 - 60);
+  int KL2 = KL1 / 60;
+  Digits[0] = (KL1 / 10);  // раскидываем 4-значное число на цифры
+  Digits[1] = (KL1 % 10);
+  Digits[2] = (KL2 / 10);
+  Digits[3] = (KL2 % 10);
+  //  Digits[0] = ping1_B;
+  //  Digits[1] = 0;
+  //  Digits[2] = 0;
+  //  Digits[3] = ping2_B;
+  //  tm1637.init();
+  tm1637.display(2, Digits[0]);
+  tm1637.display(3, Digits[1]);
+  tm1637.display(0, Digits[2]);
+  tm1637.display(1, Digits[3]);
+  tm1637.point((millis() / 1000) % 2);
 }
 
 void print_temperature_1602(float temper) {
@@ -382,8 +385,8 @@ void setup() {
   lcd1.clear();
 
   tm1637.init();
-  tm1637.set(
-      BRIGHT_DARKEST);  // BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
+  tm1637.set(BRIGHT_DARKEST);
+  // BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
   //  lcd.begin(16, 2);           // Задаем размерность экрана
   sensor.begin();
   sensor.getAddress(insideThermometer, 0);
@@ -420,7 +423,7 @@ void setup() {
 void loop() {
   //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
   tempSensor = receive_temp();
-  print_temperature_1637(tempSensor);
+  //  print_temperature_1637(tempSensor);
   // print_temperature_1602(tempSensor); //Отключаем для lcd1
 
   //  if (COLD && tempSensor > TEMP_COLD) {
@@ -481,7 +484,7 @@ void loop() {
   //    if (millis() - timerestart2 > WAIT_PING) restart_2();
   //  }
 
-  //  print_ping_1637();
+  print_ping_1637();
 
   //  digitalWrite(LED_BUILTIN, ping1_A);  //светодиод на ардуине моргает по
   //  пингу
