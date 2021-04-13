@@ -379,6 +379,21 @@ void lcd1_print() {
   //  if (ping2_B == 0) lcd1.print("0");
 }
 
+//   данная функция регистрируется как обработчик события, смотрите setup()
+void requestEvent() {
+  Wire.write("hello ");  // ответить сообщением
+}
+
+//   функция, которая будет выполняться всякий раз, когда от мастера принимаются
+//   данные данная функция регистрируется как обработчик события, смотрите
+//   setup()
+void receiveEvent(int howMany) {
+  while (Wire.available()) {
+    char c = Wire.read();  // принять байт как символ
+    //    Serial.print(c);          // напечатать символ
+  }
+}
+
 void setup() {
   delay(3000);
   //  lcd1.begin(16, 2);
@@ -388,6 +403,8 @@ void setup() {
 
   Wire.begin(0x0c);
 
+  Wire.onRequest(requestEvent);  // зарегистрировать обработчик события
+  Wire.onReceive(receiveEvent);  // зарегистрировать обработчик события
   tm1637.init();
   tm1637.set(BRIGHT_DARKEST);
   // BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
