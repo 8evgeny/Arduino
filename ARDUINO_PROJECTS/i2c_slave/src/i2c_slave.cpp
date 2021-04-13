@@ -6,7 +6,9 @@
 #include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <Wire.h>
+#include <string.h>
 
+using namespace std;
 #include "TM1637.h"
 // #include <LiquidCrystal_I2C.h>
 
@@ -117,7 +119,7 @@ unsigned long timechangePing1;
 unsigned long timechangePing2;
 unsigned long timerestart1;
 unsigned long timerestart2;
-
+char c;
 float tempSensor = 0;
 int temp_minus;
 byte data[9]{B00000000, B00000000, B00000000, B00000000, B00000000,
@@ -125,6 +127,8 @@ byte data[9]{B00000000, B00000000, B00000000, B00000000, B00000000,
 // byte
 // data[9]{B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000101,B01010000};
 // // это +85 градусов
+
+byte replay[8]{1, 2, 3, 4, 5, 6, 7, 8};  //Ответ Хадасу
 
 DeviceAddress insideThermometer,
     outsideThermometer;  // arrays to hold device addresses
@@ -245,8 +249,9 @@ void print_ping_1637() {
   int KL2 = KL1 / 60;
   Digits[0] = (KL1 / 10);  // раскидываем 4-значное число на цифры
   Digits[1] = (KL1 % 10);
-  Digits[2] = (KL2 / 10);
-  Digits[3] = (KL2 % 10);
+  Digits[3] = (KL2 / 10);
+  //  Digits[3] = (KL2 % 10);
+  Digits[2] = c;
   //  Digits[0] = ping1_B;
   //  Digits[1] = 0;
   //  Digits[2] = 0;
@@ -379,17 +384,26 @@ void lcd1_print() {
   //  if (ping2_B == 0) lcd1.print("0");
 }
 
-//   данная функция регистрируется как обработчик события, смотрите setup()
+//   Регистрирует функцию, которая будет вызываться, когда мастер запрашивает
+//   данные от ведомого устройства
 void requestEvent() {
-  Wire.write("hello ");  // ответить сообщением
+  Wire.write(c);  // ответить сообщением
+  String rep = String(replay[0]) + String(replay[1]) + String(replay[2]) +
+               String(replay[3]) + String(replay[4]) + String(replay[5]) +
+               String(replay[6]) + String(replay[7]) + " hellow ";
+
+  Wire.write(rep.c_str());  // 8 байт ответа в Хадас
+
+  //  auto rep = " ";
+  //  auto rr = (char*)rep;
+  //  Wire.write(data[7]);
 }
 
 //   функция, которая будет выполняться всякий раз, когда от мастера принимаются
-//   данные данная функция регистрируется как обработчик события, смотрите
-//   setup()
+//   данные данная функция регистрируется как обработчик события
 void receiveEvent(int howMany) {
   while (Wire.available()) {
-    char c = Wire.read();  // принять байт как символ
+    c = Wire.read();  // принять байт как символ
     //    Serial.print(c);          // напечатать символ
   }
 }
@@ -403,8 +417,9 @@ void setup() {
 
   Wire.begin(0x0c);
 
-  Wire.onRequest(requestEvent);  // зарегистрировать обработчик события
-  Wire.onReceive(receiveEvent);  // зарегистрировать обработчик события
+  Wire.onRequest(requestEvent);  // обработчик события запрос данных от master
+  Wire.onReceive(receiveEvent);  // обработчик события прием данных от master
+
   tm1637.init();
   tm1637.set(BRIGHT_DARKEST);
   // BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
@@ -446,7 +461,7 @@ void setup() {
 
 void loop() {
   //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
-  tempSensor = receive_temp();
+  //  tempSensor = receive_temp();
   //  print_temperature_1637(tempSensor);
   // print_temperature_1602(tempSensor); //Отключаем для lcd1
 
