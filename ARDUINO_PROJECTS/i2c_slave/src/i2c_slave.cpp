@@ -90,8 +90,10 @@ DallasTemperature sensor(
 // LiquidCrystal_I2C lcd1(0x27,16,2); // Указываем I2C адрес (наиболее
 // распространенное значение), а также параметры экрана (в случае LCD 1602 - 2
 // строки по 16 символов в каждой
-LiquidCrystal_PCF8574 lcd1(
-    0x27);  //Адрес на шине I2C: 0x3F или 0x27 (зависит от модификации чипа)
+
+LiquidCrystal_PCF8574 lcd1(0x27);
+
+//Адрес на шине I2C: 0x3F или 0x27 (зависит от модификации чипа)
 // LiquidCrystal_PCF8574 lcd1(0x3F);
 
 int ping1_A = 0;
@@ -379,17 +381,21 @@ void lcd1_print() {
 
 void setup() {
   delay(3000);
-  lcd1.begin(16, 2);
-  lcd1.setBacklight(255);
-  lcd1.home();
-  lcd1.clear();
+  //  lcd1.begin(16, 2);
+  //  lcd1.setBacklight(255);
+  //  lcd1.home();
+  //  lcd1.clear();
+
+  Wire.begin(0x0c);
 
   tm1637.init();
   tm1637.set(BRIGHT_DARKEST);
   // BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
   //  lcd.begin(16, 2);           // Задаем размерность экрана
+
   sensor.begin();
   sensor.getAddress(insideThermometer, 0);
+
   //  sensor.setHighAlarmTemp(insideThermometer, TEMP_VERY_HOT);
   //  sensor.setLowAlarmTemp(insideThermometer, TEMP_VERY_COLD*(-1));
 
@@ -408,10 +414,11 @@ void setup() {
   powerBoard2(0);
   power_board1_on = false;
   power_board2_on = false;
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
-  display.clearDisplay();
-  display.setTextSize(2);
+  //  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  //  display.clearDisplay();
+  //  display.setTextSize(2);
+
   timechangePing1 = millis();
   timechangePing2 = millis();
   digitalWrite(relay_ping_1, 0);
@@ -489,8 +496,8 @@ void loop() {
   //  digitalWrite(LED_BUILTIN, ping1_A);  //светодиод на ардуине моргает по
   //  пингу
 
-  OLED_print();
-  lcd1_print();
+  //  OLED_print();
+  //  lcd1_print();
 }
 
 void receive_temp_dallas(DeviceAddress deviceAddress) {
