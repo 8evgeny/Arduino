@@ -5,6 +5,7 @@
 // D10 - реле 2 - T4
 #include <LiquidCrystal.h>
 #include <OneWire.h>
+//#include <Vector.h>
 #include <Wire.h>
 #include <string.h>
 
@@ -119,7 +120,7 @@ unsigned long timechangePing1;
 unsigned long timechangePing2;
 unsigned long timerestart1;
 unsigned long timerestart2;
-char c;
+
 float tempSensor = 0;
 int temp_minus;
 byte data[9]{B00000000, B00000000, B00000000, B00000000, B00000000,
@@ -129,6 +130,12 @@ byte data[9]{B00000000, B00000000, B00000000, B00000000, B00000000,
 // // это +85 градусов
 
 byte replay[8]{1, 2, 3, 4, 5, 6, 7, 8};  //Ответ Хадасу
+
+String stringToKhadas{"Hello Khadas!!! "};
+String stringFromKhadas;
+int numReceiveByte = 0;
+// Vector<char> dataFromKhadas;
+char dataFromKhadas[16];
 
 DeviceAddress insideThermometer,
     outsideThermometer;  // arrays to hold device addresses
@@ -249,9 +256,12 @@ void print_ping_1637() {
   int KL2 = KL1 / 60;
   Digits[0] = (KL1 / 10);  // раскидываем 4-значное число на цифры
   Digits[1] = (KL1 % 10);
-  Digits[3] = (KL2 / 10);
+  //  Digits[3] = (KL2 / 10);
   //  Digits[3] = (KL2 % 10);
-  Digits[2] = c;
+  //  Digits[2] = stringFromKhadas.length();
+  //  Digits[2] = numReceiveByte;
+  Digits[2] = dataFromKhadas[0];
+  Digits[3] = dataFromKhadas[1];
   //  Digits[0] = ping1_B;
   //  Digits[1] = 0;
   //  Digits[2] = 0;
@@ -387,12 +397,14 @@ void lcd1_print() {
 //   Регистрирует функцию, которая будет вызываться, когда мастер запрашивает
 //   данные от ведомого устройства
 void requestEvent() {
-  Wire.write(c);  // ответить сообщением
+  //  char c;
+  //  Wire.write(c);  // ответить сообщением
   String rep = String(replay[0]) + String(replay[1]) + String(replay[2]) +
                String(replay[3]) + String(replay[4]) + String(replay[5]) +
                String(replay[6]) + String(replay[7]) + " hellow ";
 
-  Wire.write(rep.c_str());  // 8 байт ответа в Хадас
+  //  Wire.write(rep.c_str());  // ответ в Хадас
+  Wire.write(stringToKhadas.c_str());  // 16 байт ответа в Хадас
 
   //  auto rep = " ";
   //  auto rr = (char*)rep;
@@ -402,8 +414,16 @@ void requestEvent() {
 //   функция, которая будет выполняться всякий раз, когда от мастера принимаются
 //   данные данная функция регистрируется как обработчик события
 void receiveEvent(int howMany) {
+  char c;
+  numReceiveByte = 0;
+  //  stringFromKhadas = Wire.readString();
+  int i = 0;
   while (Wire.available()) {
-    c = Wire.read();  // принять байт как символ
+    c = Wire.read();        // принять байт как символ
+                            //    dataFromKhadas.push_back(c);
+    dataFromKhadas[i] = c;  //в массиве данные от Хадаса
+    ++numReceiveByte;
+    ++i;
     //    Serial.print(c);          // напечатать символ
   }
 }
