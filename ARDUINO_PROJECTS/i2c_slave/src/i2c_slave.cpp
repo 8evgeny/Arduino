@@ -135,7 +135,7 @@ String stringToKhadas{"Hello Khadas!!! "};
 String stringFromKhadas;
 int numReceiveByte = 0;
 // Vector<char> dataFromKhadas;
-char dataFromKhadas[16];
+char dataFromKhadas[128];
 
 DeviceAddress insideThermometer,
     outsideThermometer;  // arrays to hold device addresses
@@ -424,7 +424,6 @@ void receiveEvent(int howMany) {
     dataFromKhadas[i] = c;  //в массиве данные от Хадаса
     ++numReceiveByte;
     ++i;
-    //    Serial.print(c);          // напечатать символ
   }
 }
 
