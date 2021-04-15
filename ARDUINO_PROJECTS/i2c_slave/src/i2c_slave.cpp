@@ -120,6 +120,7 @@ unsigned long timechangePing1;
 unsigned long timechangePing2;
 unsigned long timerestart1;
 unsigned long timerestart2;
+unsigned long currtime;
 
 float tempSensor = 0;
 int temp_minus;
@@ -135,7 +136,8 @@ String stringToKhadas{"Hello Khadas!!! "};
 String stringFromKhadas;
 int numReceiveByte = 0;
 // Vector<char> dataFromKhadas;
-char dataFromKhadas[128];
+char dataFromKhadas[128]{41, 42, 43, 44, 45, 46, 47, 48,
+                         49, 50, 51, 52, 53, 54, 55, 56};
 
 DeviceAddress insideThermometer,
     outsideThermometer;  // arrays to hold device addresses
@@ -294,6 +296,13 @@ void printTime_lcd1() {
   lcd1.print(millis() / 1000);
 }
 
+void printKhadasData() {
+  lcd1.setCursor(0, 1);
+  for (int i = 0; i < 16; ++i) {
+    lcd1.print(dataFromKhadas[i]);
+  }
+}
+
 bool changePing1() {  //проверяем изменение состояния 1 пинга
   ping1_A = digitalRead(ping1);
   if (ping1_A == ping1_B) return false;
@@ -429,10 +438,10 @@ void receiveEvent(int howMany) {
 
 void setup() {
   delay(3000);
-  //  lcd1.begin(16, 2);
-  //  lcd1.setBacklight(255);
-  //  lcd1.home();
-  //  lcd1.clear();
+  lcd1.begin(16, 2);
+  lcd1.setBacklight(255);
+  lcd1.home();
+  lcd1.clear();
 
   Wire.begin(0x0c);
 
@@ -466,9 +475,9 @@ void setup() {
   power_board1_on = false;
   power_board2_on = false;
 
-  //  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  //  display.clearDisplay();
-  //  display.setTextSize(2);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.setTextSize(2);
 
   timechangePing1 = millis();
   timechangePing2 = millis();
@@ -478,77 +487,37 @@ void setup() {
   timerestart2 = millis();
 }
 
+void setupMaster() {
+  currtime = millis();
+  Wire.begin();  // Мастер
+
+  //  lcd1.begin(16, 2);
+  //  lcd1.setBacklight(255);
+  //  lcd1.home();
+  //  lcd1.clear();
+
+  //  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  //  display.clearDisplay();
+  //  display.setTextSize(2);
+}
+
+void setupSlave() {
+  Wire.begin(0x0c);  // Slave
+  Wire.onRequest(requestEvent);  // обработчик события запрос данных от master
+  Wire.onReceive(receiveEvent);  // обработчик события прием данных от master
+}
+
 void loop() {
-  //Рабочий режим - на реле 2 светодиода горят - кабель выкл  плата - вкл
-  //  tempSensor = receive_temp();
-  //  print_temperature_1637(tempSensor);
-  // print_temperature_1602(tempSensor); //Отключаем для lcd1
+  auto miliss = millis();
+  setupSlave();
+  //  print_ping_1637();
 
-  //  if (COLD && tempSensor > TEMP_COLD) {
-  //    powerCable(1);
-  //  }
-
-  //  if (COLD && tempSensor < (TEMP_COLD - DELTA)) {
-  //    powerCable(0);
-  //  }
-
-  //  if (HOT) {
-  //    powerCable(0);
-  //  }
-
-  //  if (COLD && tempSensor > TEMP_START + DELTA) {
-  //    powerBoard1(0);
-  //  }
-
-  //  if (COLD && tempSensor < TEMP_START) {
-  //    powerBoard1(1);
-  //    powerBoard2(1);
-  //  }
-
-  //  if (HOT && tempSensor < TEMP_VERY_HOT - DELTA) {
-  //    powerBoard1(1);
-  //    powerBoard2(1);
-  //  }
-
-  //  if (HOT && tempSensor > TEMP_VERY_HOT) {
-  //    powerBoard1(0);
-  //    powerBoard2(0);
-  //  }
-
-  //  ping_change1 = changePing1();
-  //  ping_change2 = changePing2();
-
-  //  if (ping_change1) ping_status1 = true;
-  //  if (ping_change2) ping_status2 = true;
-  //  if (!ping_change1 && (millis() - timechangePing1 < WAIT_PING))
-  //    ping_status1 = true;
-  //  if (!ping_change2 && (millis() - timechangePing2 < WAIT_PING))
-  //    ping_status2 = true;
-  //  if (!ping_change1 && (millis() - timechangePing1 > WAIT_PING))
-  //    ping_status1 = false;
-  //  if (!ping_change2 && (millis() - timechangePing2 > WAIT_PING))
-  //    ping_status2 = false;
-
-  //  lcd1.setCursor(1, 1);
-  //  if (ping_status1) lcd1.print("+");
-  //  if (!ping_status1) {
-  //    lcd1.print("-");
-  //    if (millis() - timerestart1 > WAIT_PING) restart_1();
-  //  }
-  //  lcd1.setCursor(14, 1);
-  //  if (ping_status2) lcd1.print("+");
-  //  if (!ping_status2) {
-  //    lcd1.print("-");
-  //    if (millis() - timerestart2 > WAIT_PING) restart_2();
-  //  }
-
-  print_ping_1637();
-
-  //  digitalWrite(LED_BUILTIN, ping1_A);  //светодиод на ардуине моргает по
-  //  пингу
-
-  //  OLED_print();
-  //  lcd1_print();
+  if ((millis() - currtime) > 1000) {
+    setupMaster();
+    print_ping_1637();
+    printKhadasData();
+    lcd1_print();
+  }
 }
 
 void receive_temp_dallas(DeviceAddress deviceAddress) {
