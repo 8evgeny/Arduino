@@ -25,6 +25,7 @@ INCLUDEPATH += $$ARDUINO_DIR/cores/arduino
 INCLUDEPATH += $$ARDUINO_DIR/variants/standard
 INCLUDEPATH += $$ARDUINO_DIR/libraries
 INCLUDEPATH += /usr/avr/include
+INCLUDEPATH += /lib/avr/include
 
 # Настройки компилятора C
 QMAKE_CC = /usr/bin/avr-gcc

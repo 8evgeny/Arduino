@@ -1,4 +1,4 @@
-//sudo avrdude -c  usbasp  -p m328p -P /dev/ttyS0 -b 19200 -U flash:w:S-789.hex:i
+//sudo avrdude -c  usbasp  -p m328p -P /dev/ttyS0 -b 19200 -U flash:w:blink.hex:i
 
 #include    "blink.h"
 
