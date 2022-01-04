@@ -5,9 +5,11 @@ TARGET = core
 # Подключаем заголовочные файлы
 INCLUDEPATH += $$ARDUINO_DIR/cores/arduino
 INCLUDEPATH += $$ARDUINO_DIR/variants/standard
-INCLUDEPATH += $$ARDUINO_DIR/libraries
+INCLUDEPATH += $$ARDUINO_DIR/../../libraries
+INCLUDEPATH += $$ARDUINO_DIR/hardware/arduino
 INCLUDEPATH += /usr/avr/include
-
+INCLUDEPATH += /usr/avr/include
+INCLUDEPATH += /usr/share/arduino/hardware/tools/avr/lib/x86_64-linux-gnu/qtcreator/plugins
 # Настройки компилятора C
 QMAKE_CC = /usr/bin/avr-gcc
 QMAKE_CFLAGS += -c -g -Os -w -ffunction-sections -fdata-sections

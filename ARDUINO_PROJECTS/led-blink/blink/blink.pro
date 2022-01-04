@@ -1,7 +1,11 @@
 # Определяем переменные окружения сборки
 
 # Корневой каталог исходников Arduino Core
-ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr/
+#ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr/
+#ARDUINO_DIR=/home/evg/SOFT/Github/Arduino/ArduinoCore-avr
+ARDUINO_DIR=/usr/share/arduino/hardware/arduino
+#ARDUINO_DIR=/usr/share/arduino
+
 # Выбираем целевой контроллер (Arduino Uno, Nano, Mini)
 ARDUINO_MCU=atmega328p
 # Частота тактирования контроллера
@@ -23,6 +27,9 @@ INCLUDEPATH += $$ARDUINO_DIR/cores/arduino
 INCLUDEPATH += $$ARDUINO_DIR/variants/standard
 INCLUDEPATH += $$ARDUINO_DIR/libraries
 INCLUDEPATH += /usr/avr/include
+INCLUDEPATH += /lib/avr/include/avr/
+INCLUDEPATH += /lib/avr/include/
+
 
 # Настройки компилятора C
 QMAKE_CC = /usr/bin/avr-gcc
