@@ -1,5 +1,5 @@
 # Определяем переменные окружения сборки
-
+DEFINES += ARDUINO=328
 # Корневой каталог исходников Arduino Core
 #ARDUINO_DIR=/usr/share/arduino/hardware/archlinux-arduino/avr/
 ARDUINO_DIR=/usr/share/arduino/hardware/arduino/

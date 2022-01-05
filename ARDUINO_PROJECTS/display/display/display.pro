@@ -1,11 +1,17 @@
 # Определяем переменные окружения сборки
-
+DEFINES += ARDUINO=328
 # Корневой каталог исходников Arduino Core
 ARDUINO_DIR=/usr/share/arduino/hardware/arduino/
 # Выбираем целевой контроллер (Arduino Uno, Nano, Mini)
 ARDUINO_MCU=atmega328p
 # Частота тактирования контроллера
 ARDUINO_FCPU = 16000000L
+
+# Корневой каталог системных библтиотек
+ARDUINO_SYS_LIB=/usr/share/arduino/libraries
+
+# Корневой каталог сторонних библтиотек
+ARDUINO_EXT_LIB=/home/evg/SOFT/Github/Arduino/libraries
 
 # Ни гуи, ни ядра Qt нам не надо!
 QT -= gui core
@@ -23,15 +29,18 @@ INCLUDEPATH += $$ARDUINO_DIR/cores/arduino
 INCLUDEPATH += $$ARDUINO_DIR/variants/standard
 INCLUDEPATH += $$ARDUINO_DIR/libraries
 INCLUDEPATH += /usr/avr/include
-INCLUDEPATH += /usr/share/arduino/libraries/Wire
-INCLUDEPATH += /usr/share/arduino/libraries/SPI
-INCLUDEPATH += /usr/share/arduino/libraries/LiquidCrystal
-INCLUDEPATH += /usr/share/arduino/libraries/TFT/utility
-INCLUDEPATH += /home/evg/SOFT/Github/Arduino/libraries/Adafruit_SSD1306
-INCLUDEPATH += /home/evg/SOFT/Github/Arduino/libraries/DallasTemperature
-INCLUDEPATH += /home/evg/SOFT/Github/Arduino/libraries/LiquidCrystal_PCF8574/src
-INCLUDEPATH += /home/evg/SOFT/Github/Arduino/libraries/OneWire
-INCLUDEPATH += /home/evg/SOFT/Github/Arduino/libraries/TM1637_Driver/src
+INCLUDEPATH += /lib/avr/include
+
+INCLUDEPATH += $$ARDUINO_SYS_LIB/Wire
+INCLUDEPATH += $$ARDUINO_SYS_LIB/Wire/utility
+INCLUDEPATH += $$ARDUINO_SYS_LIB/SPI
+INCLUDEPATH += $$ARDUINO_SYS_LIB/LiquidCrystal
+INCLUDEPATH += $$ARDUINO_SYS_LIB/TFT/utility
+INCLUDEPATH += $$ARDUINO_EXT_LIB/Adafruit_SSD1306
+INCLUDEPATH += $$ARDUINO_EXT_LIB/DallasTemperature
+INCLUDEPATH += $$ARDUINO_EXT_LIB/LiquidCrystal_PCF8574/src
+INCLUDEPATH += $$ARDUINO_EXT_LIB/OneWire
+INCLUDEPATH += $$ARDUINO_EXT_LIB/TM1637_Driver/src
 
 # Настройки компилятора C
 QMAKE_CC = /usr/bin/avr-gcc
@@ -57,6 +66,7 @@ QMAKE_LIBS = -lm
 QMAKE_POST_LINK += /usr/bin/avr-objcopy -O ihex -j .text -j .data -S ${TARGET} ${TARGET}.hex
 
 LIBS += -L../../lib -lcore
+LIBS += -L../../lib -lspl
 
 #Заголовки проекта
 INCLUDEPATH += ./include

@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
 SUBDIRS += ./core
-SUBDIRS += ./display
+SUBDIRS += ./spl
+#SUBDIRS += ./display
