@@ -73,7 +73,6 @@ const int wait_ping = WAIT_PING;
 LiquidCrystal_I2C lcd_i2c(0x27,20,4);
 
 
-
 //Распределяем пины данных ARDUINO
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
 

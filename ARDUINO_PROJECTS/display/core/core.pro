@@ -12,7 +12,7 @@ ARDUINO_FCPU = 16000000L
 QT -= gui core
 CONFIG -= qt
 
-# Шаблон проекта - приложение, будет собираться исполняемый файл формата ELF
+# Шаблон проекта - статическая библиотека
 TEMPLATE = lib
 CONFIG += staticlib
 
