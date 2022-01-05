@@ -69,6 +69,11 @@ int number_restart = NUMBER_RESTART;
 int restart = 0; //номер попытки рестарта (не менять)
 const int wait_ping = WAIT_PING;
 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd_i2c(0x27,20,4);
+
+
+
 //Распределяем пины данных ARDUINO
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
 
