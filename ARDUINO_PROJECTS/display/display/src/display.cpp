@@ -2,6 +2,7 @@
 
 #include "display.h"
 //#include "TM1637.h"
+#include "TM1637Display.h"
 #include <OneWire.h>
 #include <LiquidCrystal.h>
 
@@ -96,6 +97,7 @@ const int relay_board_2 = 2;
 
 // Создаем объекты для вывода на 4-значный дисплей и LCD
 // TM1637 tm1637(CLK,DIO);
+ TM1637Display tm1637(CLK,DIO);
  LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
 
 // Создаем объект OneWire для шины 1-Wire, с помощью которого будет осуществляться работа с датчиком
@@ -199,10 +201,15 @@ void print_temperature_1637(float temper) {
   Digits[1] = (KL1 % 10);
   Digits[2] = (KL2 / 10);
   Digits[3] = (KL2 % 10);
+
 //  tm1637.display(0,Digits[0]);
+    tm1637.showNumberDec(0,Digits[0]);
 //  tm1637.display(1,Digits[1]);
+    tm1637.showNumberDec(1,Digits[1]);
 //  tm1637.display(2,Digits[2]);
+    tm1637.showNumberDec(2,Digits[2]);
 //  tm1637.display(3,Digits[3]);
+    tm1637.showNumberDec(3,Digits[3]);
 //  tm1637.point(ping1_A); //ping
   }
 
@@ -244,8 +251,8 @@ return pingstate;
 void powerCable(bool action){
 
 // Принудительно включаем подогрев
-// digitalWrite(relay_heater_cable, 1);
-// state_relay_heater_cable = 1;
+ digitalWrite(relay_heater_cable, 1);
+ state_relay_heater_cable = 1;
 
  digitalWrite(relay_heater_cable, action);
  state_relay_heater_cable = action;
@@ -280,8 +287,8 @@ void powerBoard1(bool action){
 }
 
 void powerBoard2(bool action){
-//     digitalWrite(relay_board_2, !action);
-//     state_relay_board_2 = action;
+     digitalWrite(relay_board_2, !action);
+     state_relay_board_2 = action;
 }
 
 
@@ -614,8 +621,9 @@ void setup()
   lcd1.home();
   lcd1.clear();
 
-//  tm1637.init();
+  tm1637.clear();
 //  tm1637.set(BRIGHT_DARKEST); //BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
+  tm1637.setBrightness(1);
   lcd.begin(16, 2);           // Задаем размерность экрана
   sensor.begin();
   sensor.getAddress(insideThermometer, 0);
