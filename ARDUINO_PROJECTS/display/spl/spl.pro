@@ -48,7 +48,9 @@ INCLUDEPATH += $$ARDUINO_EXT_LIB/Adafruit_BusIO
 INCLUDEPATH += $$ARDUINO_EXT_LIB/DallasTemperature
 INCLUDEPATH += $$ARDUINO_EXT_LIB/LiquidCrystal_PCF8574/src
 INCLUDEPATH += $$ARDUINO_EXT_LIB/OneWire
-INCLUDEPATH += $$ARDUINO_EXT_LIB/TM1637_Driver/src
+INCLUDEPATH += $$ARDUINO_EXT_LIB/OneWire/util
+#INCLUDEPATH += $$ARDUINO_EXT_LIB/TM1637_Driver/src
+INCLUDEPATH += $$ARDUINO_EXT_LIB/TM1637
 
 # Настройки компилятора C
 QMAKE_CC = /usr/bin/avr-gcc
@@ -79,6 +81,11 @@ HEADERS += $$files($$ARDUINO_SYS_LIB/SPI/SPI.h)
 HEADERS += $$files($$ARDUINO_SYS_LIB/LiquidCrystal/LiquidCrystal.h)
 HEADERS += $$files($$ARDUINO_SYS_LIB/LiquidCrystal/LiquidCrystal.h)
 HEADERS += $$files($$ARDUINO_EXT_LIB/DallasTemperature/DallasTemperature.h)
+#HEADERS += $$files($$ARDUINO_EXT_LIB/TM1637_Driver/src/*.h)
+HEADERS += $$files($$ARDUINO_EXT_LIB/TM1637/TM1637Display.h)
+HEADERS += $$files($$ARDUINO_EXT_LIB/OneWire/OneWire.h)
+HEADERS += $$files($$ARDUINO_EXT_LIB/OneWire/util/*.h)
+
 
 #HEADERS += $$files($$ARDUINO_EXT_LIB/Adafruit_GFX_Library/*.h)
 #HEADERS += $$files($$ARDUINO_EXT_LIB/Adafruit_SSD1306/*.h)
@@ -88,7 +95,7 @@ HEADERS += $$files($$ARDUINO_EXT_LIB/DallasTemperature/DallasTemperature.h)
 
 #/home/evg/SOFT/Github/Arduino/libraries/LiquidCrystal_PCF8574/src
 #/home/evg/SOFT/Github/Arduino/libraries/OneWire
-#/home/evg/SOFT/Github/Arduino/libraries/TM1637_Driver/src
+
 
 # Исходники Arduino Core
 #SOURCES += $$files($$ARDUINO_DIR/cores/arduino/*.c)
@@ -99,7 +106,9 @@ SOURCES += $$files($$ARDUINO_SYS_LIB/Wire/utility/twi.c)
 SOURCES += $$files($$ARDUINO_SYS_LIB/SPI/SPI.cpp)
 SOURCES += $$files($$ARDUINO_SYS_LIB/LiquidCrystal/LiquidCrystal.cpp)
 SOURCES += $$files($$ARDUINO_EXT_LIB/DallasTemperature/DallasTemperature.cpp)
-
+#SOURCES += $$files($$ARDUINO_EXT_LIB/TM1637_Driver/src/TM1637.cpp)
+SOURCES += $$files($$ARDUINO_EXT_LIB/TM1637/TM1637Display.cpp)
+SOURCES += $$files($$ARDUINO_EXT_LIB/OneWire/OneWire.cpp)
 
 #SOURCES += $$files($$ARDUINO_EXT_LIB/Adafruit_GFX_Library/*.c)
 #SOURCES += $$files($$ARDUINO_EXT_LIB/Adafruit_GFX_Library/*.cpp)
