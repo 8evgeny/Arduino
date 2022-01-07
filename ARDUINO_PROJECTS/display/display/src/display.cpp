@@ -5,7 +5,6 @@
 #include "TM1637Display.h"
 #include <OneWire.h>
 #include <LiquidCrystal.h>
-
 #include "Wire.h"
 // #include <LiquidCrystal_I2C.h>
 
@@ -71,7 +70,6 @@ const int wait_ping = WAIT_PING;
 
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd_i2c(0x27,20,4);
-
 
 //Распределяем пины данных ARDUINO
 // Use analog pins as digital pins. A0 to A5 are D14 to D19.
@@ -619,6 +617,28 @@ void OLED_print(){
 
 void setup()
  {
+    // инициализируем экран
+    lcd_i2c.init();
+    // включаем подсветку
+    lcd_i2c.backlight();
+    // устанавливаем курсор в колонку 0, строку 0
+    lcd_i2c.setCursor(0, 0);
+    // печатаем первую строку
+    lcd_i2c.print("Hello Amperka");
+    // устанавливаем курсор в колонку 0, строку 1
+    // на самом деле это вторая строка, т.к. нумерация начинается с нуля
+    lcd_i2c.setCursor(0, 1);
+    // печатаем вторую строку
+    lcd_i2c.print("Do It Yourself");
+    // устанавливаем курсор в колонку 0, строку 2
+    lcd_i2c.setCursor(0, 2);
+    // печатаем третью строку
+    lcd_i2c.print("LCD Screen 20x4");
+    // устанавливаем курсор в колонку 0, строку 3
+    lcd_i2c.setCursor(0, 3);
+    // печатаем четвёртую строку
+    lcd_i2c.print("www.Amperka.ru");
+
   delay(3000);
   lcd1.begin(16,2);
   lcd1.setBacklight(255);
