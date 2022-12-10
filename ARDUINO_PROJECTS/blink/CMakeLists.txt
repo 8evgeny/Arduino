@@ -3,6 +3,7 @@ set(CMAKE_TOOLCHAIN_FILE /home/evg/arduino-cmake-master/cmake/ArduinoToolchain.c
 project(blink C CXX)
 include_directories(include)
 
+set(CMAKE_TOOLCHAIN_FILE /home/evg/arduino-cmake-master/cmake/ArduinoToolchain.cmake)
 set(POJECT_NAME blink)
 set(CMAKE_C_COMPILER avr-gcc)
 set(CMAKE_CXX_COMPILER avr-g++)
