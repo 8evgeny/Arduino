@@ -6,7 +6,7 @@
 
 unsigned long time = 0;
 //unsigned long DELAY = 1000000;
-unsigned long DELAY = 200000;
+unsigned long DELAY = 100000;
 bool on = false;
 
 //------------------------------------------------------------------------------

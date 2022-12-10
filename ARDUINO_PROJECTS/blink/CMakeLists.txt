@@ -16,12 +16,10 @@ set(CDEFS "-DF_CPU=16000000L -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR")
 set(ARDUINO_DIR /usr/share/arduino/hardware/arduino)
 
 set(CFLAGS "${CMCU} ${CDEFS} ${COPT} ${CWARN}")
-set(CMAKE_CXX_FLAGS ${CFLAGS})
 
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set(LINKER_FLAGS "SHELL: \
-    -w -Os -Wl,--gc-sections -mmcu=atmega328p \
-    ")
+set(CMAKE_CXX_FLAGS ${CFLAGS})
+SET(CMAKE_C_LINK_FLAGS "-mmcu=atmega328p -w -Os -Wl,--gc-sections")
+
 include_directories(
     include
     ${ARDUINO_DIR}/cores/arduino
