@@ -1,32 +1,12 @@
 #include    "st7789.h"
 
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
-#include <SPI.h>             // Arduino SPI library
-
-// ST7789 TFT module connections
-#define TFT_CS     10
-#define TFT_RST    8  // define reset pin, or set to -1 and connect to Arduino RESET pin
-#define TFT_DC     9  // define data/command pin
 // Initialize Adafruit ST7789 TFT library
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 float p = 3.1415926;
 
-void testdrawtext(char *text, uint16_t color);
-void tftPrintTest();
-void testlines(uint16_t color);
-void testfastlines(uint16_t color1, uint16_t color2);
-void testdrawrects(uint16_t color);
-void testfillrects(uint16_t color1, uint16_t color2);
-void testfillcircles(uint8_t radius, uint16_t color);
-void testdrawcircles(uint8_t radius, uint16_t color);
-void testtriangles();
-void testroundrects();
-void tftPrintTest();
-void mediabuttons();
 
-
-void setup(void) {
+void setup(void)
+{
   Serial.begin(9600);
   Serial.print(F("Hello! ST7789 TFT Test"));
 
@@ -86,10 +66,12 @@ void setup(void) {
 }
 
 void loop() {
-  tft.invertDisplay(true);
-  delay(500);
-  tft.invertDisplay(false);
-  delay(500);
+//  tft.invertDisplay(true);
+//  delay(500);
+//  tft.invertDisplay(false);
+//  delay(500);
+  testtriangles();
+  delay(2000);
 }
 
 void testlines(uint16_t color) {
@@ -190,7 +172,7 @@ void testtriangles() {
   int x = tft.height()-1;
   int y = 0;
   int z = tft.width();
-  for(t = 0 ; t <= 15; t++) {
+  for(t = 0 ; t <= 100; t++) {
     tft.drawTriangle(w, y, y, x, z, x, color);
     x-=4;
     y+=4;
