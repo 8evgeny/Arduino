@@ -7,8 +7,8 @@ float p = 3.1415926;
 
 void setup(void)
 {
-  Serial.begin(9600);
-  Serial.print(F("Hello! ST7789 TFT Test"));
+  Serial.begin(115200);
+  Serial.print(F("Hello! ST7789 TFT Test\n"));
 
   // if the display has CS pin try with SPI_MODE0
   tft.init(240, 240, SPI_MODE2);    // Init ST7789 display 240x240 pixel
