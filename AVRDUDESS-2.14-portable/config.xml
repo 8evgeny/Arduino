@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConfigData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <configVersion>1</configVersion>
+  <updateCheck>1697817422</updateCheck>
+  <skipVersion>
+    <Major>0</Major>
+    <Minor>0</Minor>
+  </skipVersion>
+  <toolTips>true</toolTips>
+  <avrdudeLoc />
+  <avrdudeConfLoc />
+  <avrSizeLoc />
+  <windowLocation>
+    <X>338</X>
+    <Y>225</Y>
+  </windowLocation>
+  <language>english</language>
+  <hiddenMCUs />
+  <hiddenProgrammers />
+  <previousSettings>
+    <programmer>usbasp</programmer>
+    <mcu>m328p</mcu>
+    <port>/dev/ttyS0</port>
+    <baud />
+    <bitclock />
+    <flashFile>/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/ST7789Display/build-cmake/st7789.hex</flashFile>
+    <flashFormat>i</flashFormat>
+    <flashOp>w</flashOp>
+    <EEPROMFile />
+    <EEPROMFormat>a</EEPROMFormat>
+    <EEPROMOp>w</EEPROMOp>
+    <force>false</force>
+    <disableVerify>false</disableVerify>
+    <disableFlashErase>false</disableFlashErase>
+    <eraseFlashAndEEPROM>false</eraseFlashAndEEPROM>
+    <doNotWrite>false</doNotWrite>
+    <lfuse />
+    <hfuse />
+    <efuse />
+    <setFuses>false</setFuses>
+    <lockBits />
+    <setLock>false</setLock>
+    <additional />
+    <verbosity>0</verbosity>
+    <name />
+  </previousSettings>
+  <usePreviousSettings>true</usePreviousSettings>
+  <windowSize>
+    <Width>974</Width>
+    <Height>822</Height>
+  </windowSize>
+  <checkForUpdates>true</checkForUpdates>
+</ConfigData>
