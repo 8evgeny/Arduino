@@ -5,8 +5,8 @@
 #define LED_STAND_PIN 13
 
 unsigned long time = 0;
-unsigned long DELAY = 1000000;
-//unsigned long DELAY = 300000;
+//unsigned long DELAY = 1000000;
+unsigned long DELAY = 300000;
 bool on = false;
 
 //------------------------------------------------------------------------------

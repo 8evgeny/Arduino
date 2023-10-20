@@ -11,8 +11,8 @@
   <avrdudeConfLoc />
   <avrSizeLoc />
   <windowLocation>
-    <X>338</X>
-    <Y>225</Y>
+    <X>257</X>
+    <Y>136</Y>
   </windowLocation>
   <language>english</language>
   <hiddenMCUs />
@@ -23,7 +23,7 @@
     <port>/dev/ttyS0</port>
     <baud />
     <bitclock />
-    <flashFile>/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/ST7789Display/build-cmake/st7789.hex</flashFile>
+    <flashFile>/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/blink/build-cmake/blink.hex</flashFile>
     <flashFormat>i</flashFormat>
     <flashOp>w</flashOp>
     <EEPROMFile />
