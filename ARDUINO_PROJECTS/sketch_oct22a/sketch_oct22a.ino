@@ -7,10 +7,10 @@ void setup() {
 
 // Код в блоке loop() будет повторяться вновь и вновь:
 void loop() {
-  digitalWrite(pin, HIGH);   
+  digitalWrite(pin, LOW);   
                              
   delay(1000);               
-  digitalWrite(pin, LOW);    
+  digitalWrite(pin, HIGH);    
                              
   delay(50);               
 }
