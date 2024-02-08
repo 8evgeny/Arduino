@@ -4,26 +4,29 @@
 #include    <Arduino.h>
 #define LED_STAND_PIN 13
 
-unsigned long time = 0;
-unsigned long DELAY = 1000000;
-bool on = false;
+unsigned long timeON = 0;
+unsigned long timeOFF = 0;
+unsigned long delayON = 500000;
+unsigned long delayOFF = 2000000;
 
+bool on = false;
+uint8_t state = LOW;
 void setup()
 {
     pinMode(LED_STAND_PIN, OUTPUT);
+    digitalWrite(LED_STAND_PIN, state);
 }
 
 void loop()
 {
-    if ( micros() >= time + DELAY ){
-        time = micros();
-        on = !on;
+    if (( micros() >= timeON + delayON )&& (state == HIGH)){
+        timeOFF = micros();
+        state = LOW;
+    }
+    if (( micros() >= timeOFF + delayOFF ) && (state == LOW)){
+        timeON = micros();
+        state = HIGH;
     }
 
-    uint8_t state = on ? HIGH : LOW;
     digitalWrite(LED_STAND_PIN, state);
-//    digitalWrite(LED_STAND_PIN, HIGH);
-//    delay(1200);
-//    digitalWrite(LED_STAND_PIN, LOW);
-//    delay(1000);
 }
