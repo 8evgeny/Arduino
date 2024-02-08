@@ -27,6 +27,7 @@ include_directories(
     ${ARDUINO_DIR}/libraries
     /usr/avr/include
     /lib/avr/include
+    /lib/avr/include/avr
 )
 
 set(SOURCE src/main.cpp)
