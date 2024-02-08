@@ -41,7 +41,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.hex
     )
 
-#add_custom_target(download
-#        COMMAND /usr/bin/avr-objcopy -O ihex -j .text -j .data -S blink blink.hex
-##        COMMAND ${CMAKE_AVRDUDE} -patmega8 -carduino -P/dev/ttyUSB0 -b19200 -D -Uflash:w:./${PROJECT_NAME}.hex:i
-#        )
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND avrdude -p m328p -c usbasp -B 4 -P usb -U flash:w:"/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/blink/build-cmake/blink.hex":a
+    COMMENT "Write Flash ")
