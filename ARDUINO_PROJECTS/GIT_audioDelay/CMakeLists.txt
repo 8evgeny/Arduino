@@ -42,6 +42,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.hex
     )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND avrdude -p m328p -c usbasp -B 4 -P usb -U flash:w:"/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/GIT_audioDelay/build-cmake/GIT_audio.hex":a
-    COMMENT "Write Flash ")
+#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#    COMMAND avrdude -p m328p -c usbasp -B 4 -P usb -U flash:w:"/home/evg/SOFT/Github/Arduino/ARDUINO_PROJECTS/GIT_audioDelay/build-cmake/GIT_audio.hex":a
+#    COMMENT "Write Flash ")

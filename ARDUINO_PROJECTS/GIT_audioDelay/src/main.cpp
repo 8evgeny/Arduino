@@ -54,8 +54,6 @@ int readIntFromEEPROM(int address)
 //  return (EEPROM.read(address) << 8) + EEPROM.read(address + 1);
 }
 
-
-
 void isr() //interrupt service routine
 {
   freqCounter++;
@@ -343,9 +341,7 @@ void DelOff()
       }
 }
 
-
-// the setup function runs once when you press reset or power the board
-void setup() {
+void gpioSetup() {
 attachInterrupt(0,isr,RISING);  //attaching the interrupt
     //Serial.begin(9600);
 
@@ -386,9 +382,8 @@ delay(500);
  //Serial.println(SfreqCounter);
 }
 
-// the loop function runs over and over again forever
-void loop() {
-
+void mainLogic() {
+    while(1){
 
 
 
@@ -508,5 +503,10 @@ if (analogRead(Ch1SignalPin)>=analogRead(Ch1TrashPin) ) // or  ( frequency<=Sfre
 
 
 
+    }
+}
 
+int main(){
+    gpioSetup();
+    mainLogic();
 }
