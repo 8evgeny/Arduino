@@ -17,8 +17,6 @@ byte Ch1Del;//по каалу 1: задержка выключения-выкл�
 boolean IsSignal1;//присутствие аудиосигнала , больше чем TRASH
 boolean Start1, Stop1;//аудиотриггер запущен
 
-
-
 #define D01 4 // channel 2
 #define D11 5
 #define D21 6
@@ -35,21 +33,11 @@ byte Ch2Del;//по каалу 2:
 boolean IsSignal2;//присутствие аудиосигнала , больше чем TRASH
 boolean Start2, Stop2;//аудиотриггер запущен
 
+int n;
 
-
-
-int n;//
-
-//int Htime;       // целочисленная переменная для хранения времени высокого логического уровня
-//int Ltime;       // целочисленная переменная для хранения времени низкого логического уровня
-//float Ttime;     // переменная для хранения общей длительности периода
-//float frequency; // переменная для хранения частоты
-
-// the setup function runs once when you press reset or power the board
 void setup() {
-
-        Serial.begin(115200);
-
+    Serial.begin(115200);
+    Serial.print("Test print to UART\r\n");
     pinMode(IndCh1, OUTPUT);
     pinMode(IndCh2, OUTPUT);
 
@@ -63,11 +51,8 @@ void setup() {
     pinMode(D21, INPUT_PULLUP);
     pinMode(D31, INPUT_PULLUP);
 
-
-
-
     //поморгаем для начала
-  digitalWrite(IndCh1, HIGH);   // turn the LED on (HIGH is the voltage level)
+    digitalWrite(IndCh1, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(500);                       // wait for a second
     digitalWrite(IndCh1, LOW);    // turn the LED off by making the voltage LOW
     delay(500);                       // wait for a second
@@ -75,12 +60,8 @@ void setup() {
     delay(500);                       // wait for a second
     digitalWrite(IndCh2, LOW);    // turn the LED off by making the voltage LOW
     delay(500);                       // wait for a second
-
-
-
 }
 
-// the loop function runs over and over again forever
 void loop() {
     //----------------------------------
     //СЧИТЫВАНИЕ ТЕТРАДЫ  Ch1DelStrt;
@@ -94,9 +75,8 @@ void loop() {
     bitWrite(Ch1Del, 1, digitalRead(D1));
     bitWrite(Ch1Del, 0, digitalRead(D0));
 
-
     //СЧИТЫВАНИЕ ТЕТРАДЫ  Ch1DelStp;
-pinMode(Ch1StrtOn, INPUT);
+    pinMode(Ch1StrtOn, INPUT);
     pinMode(Ch1StpOn, OUTPUT);
     digitalWrite(Ch1StpOn, LOW);
     bitWrite(Ch1Del, 7, digitalRead(D3));
@@ -105,16 +85,12 @@ pinMode(Ch1StrtOn, INPUT);
     bitWrite(Ch1Del, 4, digitalRead(D0));
 
     pinMode(Ch1StrtOn, INPUT);//ОТКЛЮЧАЕМ СКАНИРОВАНИЕ
-pinMode(Ch1StpOn, INPUT);
+    pinMode(Ch1StpOn, INPUT);
 
     Ch1Del= ~Ch1Del;
     Ch1DelStrt=Ch1Del & 0x0F;
     Ch1DelStp=(Ch1Del & 0xF0)>>4;//старший полубайт
 
-
-
-
-    //----------------------------------
     //СЧИТЫВАНИЕ ТЕТРАДЫ  Ch1DelStrt;
 //digitalWrite(IndCh1, HIGH);
 
@@ -126,9 +102,8 @@ pinMode(Ch1StpOn, INPUT);
     bitWrite(Ch2Del, 1, digitalRead(D11));
     bitWrite(Ch2Del, 0, digitalRead(D01));
 
-
     //СЧИТЫВАНИЕ ТЕТРАДЫ  Ch1DelStp;
-pinMode(Ch2StrtOn, INPUT);
+    pinMode(Ch2StrtOn, INPUT);
     pinMode(Ch2StpOn, OUTPUT);
     digitalWrite(Ch2StpOn, LOW);
     bitWrite(Ch2Del, 7, digitalRead(D31));
@@ -137,14 +112,11 @@ pinMode(Ch2StrtOn, INPUT);
     bitWrite(Ch2Del, 4, digitalRead(D01));
 
     pinMode(Ch2StrtOn, INPUT);//ОТКЛЮЧАЕМ СКАНИРОВАНИЕ
-pinMode(Ch2StpOn, INPUT);
+    pinMode(Ch2StpOn, INPUT);
 
     Ch2Del= ~Ch2Del;
     Ch2DelStrt=Ch2Del & 0x0F;
     Ch2DelStp=(Ch2Del & 0xF0)>>4;//старший полубайт
-
-
-
 
     ////Serial.print("Signal 1= ");
     //Serial.print(analogRead(Ch1SignalPin));
@@ -165,12 +137,8 @@ pinMode(Ch2StpOn, INPUT);
         }
         else                  //если аудиотриггер уже работает
         {
-            //      //Serial.println("");
             Ch1Time2=millis();
             Ch1Delta=Ch1Time2-Ch1Time1;//разница времени
-
-
-
 
             if (Ch1Delta!=0)
             {
@@ -178,19 +146,7 @@ pinMode(Ch2StpOn, INPUT);
                 //        delay(100);
                 //        digitalWrite(IndCh1, LOW);
                 //        delay(100);
-
-
-
-
-
-
-
             }
-
-
-
-
-
             switch (Ch1DelStrt) // запуск задержки в соответствии с переключателем
             {
             case  0:
@@ -327,13 +283,10 @@ pinMode(Ch2StpOn, INPUT);
                 break;
                     // код для выполнения
             }
-
         }
-
     }
     else //сигнал меньше заданного уровня
     {
-
         if (digitalRead( IndCh1 ) == HIGH)//если сигнала нет но аудиотриггер установлен в 1 делаем задержку выключения аудиотриггера в ссответствии с переключателем
         {
             //Serial.println(" IndCh1=HIGH");
@@ -518,10 +471,8 @@ pinMode(Ch2StpOn, INPUT);
             Ch1Time4=0;
             Start1=false;
             Stop1=false;
-
         }
     }// the end of test ch1
-
 
     //test ch1
     //Serial.print(" Signal 2= ");
@@ -532,7 +483,6 @@ pinMode(Ch2StpOn, INPUT);
     //Serial.print(Ch2DelStp, HEX);
     //Serial.print(Ch2DelStrt, HEX);
     //Serial.println();//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
     if (analogRead(Ch2SignalPin)>=analogRead(Ch2TrashPin))//проверяем 1 раз - если сигнал есть проверим еще DelOnOff раз
     {
@@ -694,26 +644,21 @@ pinMode(Ch2StpOn, INPUT);
     }
     else //сигнал меньше заданного уровня
     {
-        ////Serial.println("");
         if (digitalRead( IndCh2 ) == HIGH)//если сигнала нет но аудиотриггер установлен в 1 делаем задержку выключения аудиотриггера в ссответствии с переключателем
         {
-            //      //Serial.println(" IndCh2=HIGH");
-            ////Serial.println("");
+            //Serial.println(" IndCh2=HIGH");
             if (Stop2==false)   //если аудиотриггер еще не запущен
             {
-                //             //Serial.println(" Stop2=false");
-                //  //Serial.println("");
+                //Serial.println(" Stop2=false");
                 Ch2Time3=millis();
                 Ch2Time4=0;
                 Stop2=true;
             }
             else                  //если аудиотриггер уже работает
             {
-                //        //Serial.println("");
-                //              //Serial.println(" Stop2=true");
+                //Serial.println(" Stop2=true");
                 Ch2Time4=millis();
                 Ch2Delta=Ch2Time4-Ch2Time3;//разница времени
-
 
                 //      //Serial.print(" Ch2DelStop2=");
                 //      //Serial.print(Ch2DelStp );
@@ -723,10 +668,6 @@ pinMode(Ch2StpOn, INPUT);
                 //      //Serial.print(Ch2Time3 );
                 //      //Serial.print(" Ch2Delta=");
                 //      //Serial.print(Ch2Delta );
-
-
-
-
 
                 switch (Ch2DelStp) // запуск задержки выключения в соответствии с переключателем
                 {
@@ -856,22 +797,15 @@ pinMode(Ch2StpOn, INPUT);
                     else digitalWrite(IndCh2, HIGH);
                     break;
 
-
                 default:
                     break;
                         // код для выполнения
-                    //  //Serial.println("");
                 }
-
-
-                //    //Serial.println("");
             }
-
-
         }
         else
         {
-            //     //Serial.print(" No signal on ch2 ");
+            //Serial.print(" No signal on ch2 ");
             //Serial.print(" IndCh2=0 ");
             //Serial.println(" / ");
             digitalWrite(IndCh2, LOW);
@@ -881,14 +815,6 @@ pinMode(Ch2StpOn, INPUT);
             Ch2Time4=0;
             Start2=false;
             Stop2=false;
-
         }
-        //  //Serial.println("");
     }// the end of test ch2
-
-
-
-
-
-
 }
