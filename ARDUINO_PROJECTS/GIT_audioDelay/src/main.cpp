@@ -461,7 +461,7 @@ void loop() {
         }
         else
         {
-            //     //Serial.print(" No signal on ch1 ");
+            //Serial.print(" No signal on ch1 ");
             //Serial.print(" IndCh1=0 ");
             //Serial.print(" / ");
             digitalWrite(IndCh1, LOW);
@@ -660,14 +660,14 @@ void loop() {
                 Ch2Time4=millis();
                 Ch2Delta=Ch2Time4-Ch2Time3;//разница времени
 
-                //      //Serial.print(" Ch2DelStop2=");
-                //      //Serial.print(Ch2DelStp );
-                //      //Serial.print(" Ch2Time4=");
-                //      //Serial.print(Ch2Time4 );
-                //      //Serial.print(" Ch2Time3=");
-                //      //Serial.print(Ch2Time3 );
-                //      //Serial.print(" Ch2Delta=");
-                //      //Serial.print(Ch2Delta );
+              //Serial.print(" Ch2DelStop2=");
+              //Serial.print(Ch2DelStp );
+              //Serial.print(" Ch2Time4=");
+              //Serial.print(Ch2Time4 );
+              //Serial.print(" Ch2Time3=");
+              //Serial.print(Ch2Time3 );
+              //Serial.print(" Ch2Delta=");
+              //Serial.print(Ch2Delta );
 
                 switch (Ch2DelStp) // запуск задержки выключения в соответствии с переключателем
                 {
@@ -818,3 +818,4 @@ void loop() {
         }
     }// the end of test ch2
 }
+
